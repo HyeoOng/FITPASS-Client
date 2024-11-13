@@ -165,7 +165,7 @@ function submitForm() {
 }
 
 .signupDiv {
-  margin-top: 90px;
+  margin-top: 75px;
   justify-items: center;
   align-items: center;
 }
