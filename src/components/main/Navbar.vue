@@ -1,0 +1,50 @@
+<template>
+  <v-app-bar :elevation="0" class="navi-bar">
+    <v-toolbar-title class="text-h5 font-weight-bold">
+      <v-img
+      :width="80"
+      aspect-ratio="16/9"
+      cover
+      :src="logoSrc"
+      ></v-img> 
+    </v-toolbar-title>
+    <v-spacer></v-spacer>
+    <div class="naviBtnClass">
+      <v-btn text class="nav-btn">HOME</v-btn>
+      <v-btn text class="nav-btn">Write</v-btn>
+      <v-btn text class="nav-btn">Community</v-btn>
+      <v-btn text class="nav-btn">Admin</v-btn>
+    </div>
+    <v-spacer></v-spacer>
+    <v-btn class="login-btn mr-5" @click="goToLogin" outlined>LOG IN</v-btn>
+  </v-app-bar>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToLogin = () => {
+  router.push('/login')
+}
+
+// 로컬 이미지 경로를 import로 불러오기
+import logo from '@/assets/logo.png';
+
+// 로컬 이미지 경로를 ref로 저장
+const logoSrc = ref(logo);
+</script>
+
+<style scoped>
+
+.v-toolbar-title {
+  color: #000;
+}
+
+.login-btn{
+  background-color: #7FC8F8;
+  color: white;
+}
+</style>
