@@ -123,7 +123,7 @@
 import { ref } from "vue";
 
 import defaultProfileImg from '@/assets/profile.png';
-import NaviView from "@/components/main/Navbar.vue";
+import NaviView from "@/components/common/Navbar.vue";
 
 const formData = ref({
   profilePicture: null,

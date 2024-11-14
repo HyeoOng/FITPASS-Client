@@ -10,7 +10,7 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <div class="naviBtnClass">
-      <v-btn text class="nav-btn">HOME</v-btn>
+      <v-btn text class="nav-btn" @click="goToMyHome">HOME</v-btn>
       <v-btn text class="nav-btn">Write</v-btn>
       <v-btn text class="nav-btn">Community</v-btn>
       <v-btn text class="nav-btn">Admin</v-btn>
@@ -28,6 +28,10 @@ const router = useRouter();
 
 const goToLogin = () => {
   router.push('/login')
+}
+
+const goToMyHome = () => {
+  router.push('/myhome');
 }
 
 // 로컬 이미지 경로를 import로 불러오기
