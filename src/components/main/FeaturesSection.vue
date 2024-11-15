@@ -7,7 +7,7 @@
       지금 가입하고 FITPASS와 함께 여행 중에도 건강을 챙기세요.
     </p>
     <v-row justify="center" class="pt-10 pb-10">
-      <v-col v-for="(feature, index) in features" :key="index" cols="12" md="4" class="text-center pa-10">
+      <v-col v-for="(feature, index) in features" :key="index" cols="12" md="4" class="card-div text-center pa-10">
         <v-card class="feature-card rounded-lg">
           <v-card-title><v-icon color="primary" size="56">{{ feature.icon }}</v-icon></v-card-title>
           <h3 class="text-h6 font-weight-bold mt-4">{{ feature.title }}</h3>
@@ -29,12 +29,17 @@ const features = ref([
 </script>
 
 <style scoped>
+.card-div{
+  justify-items: center;
+  justify-content: center;
+}
+
 .text-primary {
   color: #8AB6E1;
 }
 
 .feature-card{
-  width: 18vw; /* 원하는 너비 설정 */
+  width: 20vw;
   height: 300px; /* 원하는 높이 설정 */
   display: flex;
   flex-direction: column;

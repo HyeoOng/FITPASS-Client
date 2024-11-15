@@ -4,10 +4,11 @@
       <h1 class="display-1 font-weight-bold">운동과 여행을 <br>하나로 연결하는 <span class="text-primary font-weight-black">FITPASS</span></h1>
       <p class="text-subtitle-1">활동 기록부터 여행지 추천까지, 여행의 순간을 남기고 친구들과 공유하세요.</p>
 
-      <div class="logBtn pt-5">
+      <div class="logBtn pt-5" v-if="!userStore.isLogined">
         <v-btn class="mx-3 pink" @click="goToLogin" outlined>LOG IN</v-btn>
         <v-btn class="mx-3 pink" @click="goToSignup" outlined>SIGN UP</v-btn>
       </div>
+      
     </div>
     
   </div>
@@ -15,8 +16,10 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 const goToLogin = () => {
   router.push("/login")
@@ -25,6 +28,9 @@ const goToLogin = () => {
 const goToSignup = () => {
   router.push("/signup")
 }
+
+
+
 </script>
 
 <style scoped>

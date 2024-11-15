@@ -48,12 +48,19 @@ import logoView from '@/components/Logo.vue';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 const visible = ref(false);
 const router = useRouter();
+const userStore = useUserStore();
 
 const goToSignUp = () =>  {
   router.push('signup')
+}
+
+const goToLogin = () => {
+  userStore.logIn();
+  router.push('/')
 }
 </script>
 
