@@ -12,7 +12,7 @@
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
-                <v-btn variant="flat">Show Details</v-btn>
+                <v-btn variant="text">Show Details</v-btn>
               </v-overlay>
             </v-card>
           </v-hover>
