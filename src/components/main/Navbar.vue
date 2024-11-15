@@ -18,6 +18,7 @@
     <v-spacer></v-spacer>
     <v-btn v-if="!userStore.isLogined" class="login-btn mr-5" @click="goToLogin" outlined>LOG IN</v-btn>
     <v-btn v-else class="login-btn mr-5" @click="userStore.logOut" outlined>LOG OUT</v-btn>
+    <!-- v-avator로 바꾸기 프로필로!-->
   </v-app-bar>
 </template>
 

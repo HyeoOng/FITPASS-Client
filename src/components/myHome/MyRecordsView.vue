@@ -46,8 +46,8 @@ const features = ref([
 
 .main-content{
   max-width: 100%;
-  padding-left: 5%;
-  padding-right: 5%;
+  padding-left: 5vw;
+  padding-right: 5vw;
   position: absolute;
   z-index: 1;
   top: -100px;
