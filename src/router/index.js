@@ -12,7 +12,7 @@ const router = createRouter({
         {path: '/signup', name: 'signup', component : () => import('@/components/Singup.vue')},
         {path: '/write', name: 'write', component : () => import('@/components/write/WritePageView.vue')},
         {path: '/community', name: 'community', component : () => import('@/components/community/CommunityPageView.vue')},
-        {path: '/admin', name: 'admin', component : () => import('@/components/adminPage/AdminPageView.vue')},
+        {path: '/admin', name: 'admin', component : () => import('@/components/adminpage/AdminPageView.vue')},
       ]
     },
     {
