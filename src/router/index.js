@@ -6,18 +6,19 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('@/components/main/Header.vue'),
+      component: () => import('@/components/MainPage.vue'),
+      children : [
+        {path: '/', name: 'main', component: () => import('@/components/main/MainPageView.vue')},
+        {path: '/signup', name: 'signup', component : () => import('@/components/Singup.vue'),
+        },
+      ]
     },
     {
       path: '/login',
       name: 'login',
       component : () => import('@/components/Login.vue'),
     },
-    {
-      path: '/signup',
-      name: 'signup',
-      component : () => import('@/components/Singup.vue'),
-    },
+    
   ],
 })
 

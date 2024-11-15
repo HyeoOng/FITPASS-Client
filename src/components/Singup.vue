@@ -1,5 +1,4 @@
 <template>
-  <NaviView />
   <div class="signupDiv">
     
     <!--상단 이미지 div-->
@@ -123,7 +122,6 @@
 import { ref } from "vue";
 
 import defaultProfileImg from '@/assets/profile.png';
-import NaviView from "@/components/main/Navbar.vue";
 
 const formData = ref({
   profilePicture: null,

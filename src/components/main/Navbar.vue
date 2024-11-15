@@ -6,6 +6,7 @@
       aspect-ratio="16/9"
       cover
       :src="logoSrc"
+      @click="router.push('/')"
       ></v-img> 
     </v-toolbar-title>
     <v-spacer></v-spacer>
