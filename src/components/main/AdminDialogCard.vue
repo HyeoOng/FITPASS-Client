@@ -5,6 +5,9 @@
       서비스 개선을 위해 사용 중 겪은 불편 사항이나 <br>개선을 원하는 부분 등 소중한 피드백을 보내주세요.<br>
       더 나은 서비스를 위해 노력하겠습니다. 감사합니다.
     </v-card-text>
+    <v-text-field
+    label="제목"
+    variant="outlined" />
     <v-textarea
       label="소중한 피드백을 남겨주세요."
       variant="outlined"
