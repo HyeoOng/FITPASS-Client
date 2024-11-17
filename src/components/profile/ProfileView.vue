@@ -2,7 +2,7 @@
   <div class="profileDiv">
     <!-- 상단 이미지 div -->
     <div class="profile-header">
-      <h1 class="font-weight-black">PROFILE</h1>
+      <h1 class="font-weight-black">나의 정보</h1>
     </div>
 
     <!-- 프로필 정보 표시 -->

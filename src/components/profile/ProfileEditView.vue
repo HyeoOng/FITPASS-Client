@@ -2,7 +2,7 @@
   <div class="profileDiv">
     <!-- 상단 이미지 div -->
     <div class="profile-img">
-      <h1 class="font-weight-black">PROFILE</h1>
+      <h1 class="font-weight-black">회원정보 수정</h1>
     </div>
 
     <div class="profile-form pt-10 pb-10">
