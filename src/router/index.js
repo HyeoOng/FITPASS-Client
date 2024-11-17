@@ -13,6 +13,17 @@ const router = createRouter({
         { path: '/write', name: 'write', component: () => import('@/components/write/WritePageView.vue') },
         { path: '/community', name: 'community', component: () => import('@/components/community/CommunityPageView.vue') },
         {
+          path: '/profile',
+          name: 'profile',
+          component: () => import('@/components/profile/ProfileView.vue'),
+          
+        },
+        {
+          path: 'profile/edit',
+          name: 'profile-edit',
+          component: () => import('@/components/profile/ProfileEditView.vue'),
+        },
+        {
           path: '/admin',
           name: 'admin',
           component: () => import('@/components/adminpage/AdminPageView.vue'),
