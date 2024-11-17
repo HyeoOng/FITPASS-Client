@@ -3,8 +3,14 @@
     <h1 class="font-weight-black">community</h1>
   </div>
   <div class="main-div">
-    <FriendListView />
-    <PostsView />
+    <v-row>
+      <v-col cols="9">
+        <PostsView />
+      </v-col>
+      <v-col cols="3">
+        <FriendListView />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
