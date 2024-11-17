@@ -27,7 +27,7 @@
           </template>
           <v-list>
             <v-list-item>
-              <v-list-item-title>내 정보 수정</v-list-item-title>
+              <v-list-item-title @click="goToProfile">나의 프로필</v-list-item-title>
             </v-list-item>
             <v-list-item @click="openAdminDialog">
               <v-list-item-title>관리자에게 요청</v-list-item-title>
@@ -82,6 +82,10 @@ const logoSrc = ref(logo);
 const goToMain = () => {
   userStore.logOut();
   router.push('/');
+}
+
+const goToProfile = () => {
+  router.push('/profile');
 }
 </script>
 
