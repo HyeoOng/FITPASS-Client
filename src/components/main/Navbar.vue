@@ -26,8 +26,8 @@
             <v-avatar :image="imgSrc" class="ml-3" v-bind="props"></v-avatar>
           </template>
           <v-list>
-            <v-list-item>
-              <v-list-item-title @click="goToProfile">나의 프로필</v-list-item-title>
+            <v-list-item @click="goToProfile">
+              <v-list-item-title>나의 프로필</v-list-item-title>
             </v-list-item>
             <v-list-item @click="openAdminDialog">
               <v-list-item-title>관리자에게 요청</v-list-item-title>
