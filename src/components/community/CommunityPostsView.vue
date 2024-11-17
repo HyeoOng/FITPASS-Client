@@ -99,7 +99,7 @@ const currentPosts = computed(() => {
 <style scoped>
 .main-div {
   padding-left: 5vw;
-  padding-right: 5vw;
+  /* padding-right: 5vw; */
 }
 
 .posts-container {
