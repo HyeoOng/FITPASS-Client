@@ -96,7 +96,7 @@ const deleteAdmin = (index) => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .admin-container {
     max-width: 1200px;
     margin: 40px auto;

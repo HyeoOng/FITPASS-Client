@@ -93,7 +93,7 @@ const deleteRequest = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .request-list {
     margin-top: 20px;
     display: flex;

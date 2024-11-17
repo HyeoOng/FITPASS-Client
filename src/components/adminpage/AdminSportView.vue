@@ -106,7 +106,7 @@ const deleteSport = (index) => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .container {
     display: flex;
     gap: 20px; /* Space between the table and form */
