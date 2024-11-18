@@ -16,7 +16,7 @@
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
-                <v-btn variant="text">Show Details</v-btn>
+                <v-btn variant="text" @click="showDetailPost(post)">Show Details</v-btn>
               </v-overlay>
             </v-card>
           </v-hover>
@@ -26,11 +26,21 @@
       <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" circle></v-pagination>
     </v-container>
 
+    <v-dialog 
+      v-model="showDetail"
+      max-width="80%"
+      max-height="75%"
+    >
+      <DetailPostView v-if="selectedPost" :post="selectedPost" />
+    </v-dialog>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+
+import DetailPostView from '../myHome/DetailPostView.vue';
 
 const tab = ref('public');
 const publicPosts = ref([
@@ -87,6 +97,9 @@ const currentPage = ref(1);
 const postsPerPage = 16;
 const totalPages = computed(() => Math.ceil(posts.value.length / postsPerPage));
 
+const showDetail = ref(false);
+const selectedPost = ref({});
+
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
   posts.value = tab.value === 'public' ? publicPosts.value : friendPosts.value;
@@ -94,6 +107,11 @@ const currentPosts = computed(() => {
   const end = start + postsPerPage;
   return posts.value.slice(start, end);
 });
+
+const showDetailPost = (post) => {
+  selectedPost.value = post;
+  showDetail.value = true;
+}
 </script>
 
 <style scoped>
