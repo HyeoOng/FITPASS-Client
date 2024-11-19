@@ -146,6 +146,7 @@ const watchPost = watch(
   padding-top: 1%;
   padding-left: 5px;
   color:darkgrey;
+  margin-left: 10%;
 }
 
 .post-calender{

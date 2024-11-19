@@ -51,7 +51,7 @@
           color="primary"
         ></v-textarea>
         
-                <KakaoPlaceRegistView />
+        <KakaoPlaceRegistView />
 
         <v-file-input
           v-model="formData.photo"
