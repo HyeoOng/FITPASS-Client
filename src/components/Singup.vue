@@ -12,14 +12,14 @@
         <!-- 프로필 사진 미리보기 -->
         <div class="profile-img-container">
           <img
-            :src="formData.profilePicture ? formData.profilePicture : defaultProfileImg"
+            :src="formData.profile ? formData.profile : defaultProfileImg"
             alt="프로필 사진 미리보기"
             class="profileImg"
           />
         </div>
 
         <v-file-input
-          v-model="formData.profilePicture"
+          v-model="formData.profile"
           :show-size="1000"
           label="프로필 사진 등록"
           placeholder="프로필 사진을 등록해 보세요!"
@@ -74,7 +74,7 @@
 
         <v-text-field
           label="닉네임"
-          v-model="formData.nickname"
+          v-model="formData.nn"
           :rules="[(v) => !!v || '닉네임을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
@@ -82,35 +82,6 @@
           >닉네임 중복 확인</v-btn
         >
 
-        <v-menu
-          v-model="birthDateMenu"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              label="생년월일"
-              v-model="formData.birthDate"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              variant="outlined"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="formData.birthDate"
-            no-title
-            @input="birthDateMenu = false"
-          ></v-date-picker>
-        </v-menu>
-
-        <v-radio-group v-model="formData.gender" row>
-          <v-radio label="남성" value="male"></v-radio>
-          <v-radio label="여성" value="female"></v-radio>
-        </v-radio-group>
 
         <v-btn @click="submitForm" color="primary">회원가입</v-btn>
       </v-form>
@@ -120,20 +91,23 @@
 
 <script setup>
 import { ref } from "vue";
-
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import defaultProfileImg from '@/assets/profile.png';
 
+const router = useRouter();
+const userStore = useUserStore();
+
+
 const formData = ref({
-  profilePicture: null,
   name: "",
   email: "",
   password: "",
-  nickname: "",
-  birthDate: "",
-  gender: "",
+  nn: "",
+  profile: null,
+
 });
 
-const birthDateMenu = ref(false);
 
 function checkEmailDuplication() {
   alert("이메일 중복 확인");
@@ -145,6 +119,7 @@ function checkNicknameDuplication() {
 
 function submitForm() {
   alert("회원가입 제출", formData.value);
+  userStore.signup(formData.value);
 }
 </script>
 

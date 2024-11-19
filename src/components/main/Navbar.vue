@@ -59,7 +59,7 @@ import AdminDialogCard from './AdminDialogCard.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
-const userNn = ref("혜옹");
+const userNn = sessionStorage.getItem("nickname");
 const adminDialog = ref(false);
 
 const goToLogin = () => {
@@ -80,8 +80,7 @@ import logo from '@/assets/logo.png';
 // 로컬 이미지 경로를 ref로 저장
 const logoSrc = ref(logo);
 const goToMain = () => {
-  userStore.logOut();
-  router.push('/');
+  userStore.logout();
 }
 
 const goToProfile = () => {
