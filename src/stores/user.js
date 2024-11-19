@@ -3,6 +3,7 @@ import {ref} from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import router from '@/router';
+axios.defaults.withCredentials = true; // withCredentials 전역 설정
 
 const REST_API_URL = `http://localhost:8080/api/users`
 
@@ -15,15 +16,17 @@ export const useUserStore = defineStore('user', () => {
       method: "POST",
       data: user
     })
-    .then(() => {
+    .then((response) => {
       console.log("완료2222");
       isLogined.value = true;
       console.log("isLogin: " , isLogined);
       router.push("/");
+      sessionStorage.setItem("userId", response.data.userId);
+      sessionStorage.setItem("nickname", response.data.nickname);
 
     })
-    .catch(() => {
-      console.log(실패);
+    .catch((response) => {
+      console.log(response);
     })
   }
   return {login,isLogined};
