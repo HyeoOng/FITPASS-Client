@@ -5,7 +5,8 @@
       <v-col cols="11" class="pa-0">
         <v-text-field variant="outlined" class="pa-0" 
         v-model="searchKeyword"
-        @key.enter="searchPlace"></v-text-field>
+        @keydown.enter="searchPlace"
+        ></v-text-field>
       </v-col>
       <v-col cols="1">
         <v-btn variant="plain" class="text-primary" @click="searchPlace">검색</v-btn>
@@ -17,16 +18,16 @@
         <h3 class="font-weight-bold pl-3 pb-4">검색 결과</h3>
         해당하는 지역의 이름을 클릭해주세요.
         <v-virtual-scroll :items="searchResults" height="420">
-          <template v-slot:default="{ item }">
+          <template v-slot:default="{ item, index }">
             <v-list-item class="py-3" @click="selectPlace(item)">
               <template v-slot:prepend>
                 <v-avatar color="#7FC8F8" class="text-white" size="30">
-                  {{ item.id }}
+                  {{ index + 1 }}
                 </v-avatar>
               </template>
 
               <v-list-item-title>{{ item.placeName }}</v-list-item-title>
-              <v-list-item-subtitle>{{ item.address }}</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ item.placeAddress }}</v-list-item-subtitle>
             </v-list-item>
           </template>
         </v-virtual-scroll>

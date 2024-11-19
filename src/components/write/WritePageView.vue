@@ -102,12 +102,14 @@
 </template>
 
 <script setup>
-import { ref, toRaw, unref } from "vue";
+import { ref, toRaw } from "vue";
 import { useSportStore } from '@/stores/sport';
 import { usePostStore } from "@/stores/post";
+import { useRouter } from 'vue-router';
 
 import KakaoPlaceRegistView from "@/components/write/KakaoPlaceRegistView.vue";
 
+const router = useRouter();
 const sportStore = useSportStore();
 const postStore = usePostStore();
 
@@ -166,10 +168,6 @@ const submitForm = () => {
     return
   }
 
-  // console.log("현재 데이터 확인하기..");
-  // console.log("post: ", toRaw(post.value));
-  // console.log("place: ", toRaw(place.value));
-  // console.log("file: ", toRaw(file.value));
   const formData = new FormData();
   formData.append("post", new Blob([JSON.stringify(toRaw(post.value))],{
     type: "application/json"}));
@@ -179,11 +177,13 @@ const submitForm = () => {
   formData.append("file", file.value);
   console.log("js에서 formData: ", formData)
 
-  postStore.registPost(formData);
-  // console.log("작성 내용 : ");
-  // for (const [key, value] of formData.entries()) {
-  //   console.log(key, value);
-  // }
+  const successFlag = postStore.registPost(formData);
+  if(successFlag){
+    router.push("/");
+  }else{
+    alert("글 등록에 실패하였습니다. <br> 잠시 후 다시 시도해주세요.")
+  }
+
 };
 ////////////////////////
 

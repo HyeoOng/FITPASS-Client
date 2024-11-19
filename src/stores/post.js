@@ -14,11 +14,13 @@ export const usePostStore = defineStore('post', () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
-      alert("데이터 전송 성공");
+      // console.log(response.data);
+      // alert("데이터 전송 성공");
+      return true;
     } catch (error) {
-      console.error(error);
-      alert("데이터 전송 실패");
+      return false;
+      // console.error(error);
+      // alert("데이터 전송 실패");
     }
   }
 
