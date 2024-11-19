@@ -51,7 +51,7 @@
           color="primary"
         ></v-textarea>
         
-        <KakaoPlaceRegistView />
+        <KakaoPlaceRegistView @select-place="setPlace" />
 
         <v-file-input
           v-model="formData.photo"
@@ -99,6 +99,17 @@
 import { ref } from "vue";
 import KakaoPlaceRegistView from "@/components/write/KakaoPlaceRegistView.vue";
 
+const post = ref({
+
+});
+
+const place = ref({})
+
+// place 선택 함수
+const setPlace = (selectPlace) => {
+  place.value = selectPlace;
+}
+
 const formData = ref({
   title: "",
   content: "",
@@ -137,6 +148,7 @@ const onFileChange = (event) => {
 const submitForm = () => {
   console.log("작성 내용 : ", formData.value);
 };
+
 
 </script>
 
