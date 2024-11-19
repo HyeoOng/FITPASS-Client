@@ -7,6 +7,7 @@
       :aspect-ratio="4 / 3"
       :src="loginImg"
     ></v-img> 
+
     <div class="loginFormDiv">
       <!-- 로그인 폼 내용 -->
       <h1 class="font-weight-black">LOG IN</h1>
@@ -29,7 +30,7 @@
           variant="outlined"
           :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
           :type="visible ? 'text' : 'password'"
-          
+          @keydown.enter="goToLogin"
           @click:append-inner="visible = !visible"
         ></v-text-field>
 
