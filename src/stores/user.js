@@ -1,17 +1,30 @@
 // stores/user.js
+import {ref} from 'vue';
 import { defineStore } from 'pinia';
+import axios from 'axios';
+import router from '@/router';
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    isLogined: false, // 초기값 설정
-  }),
-  actions: {
-    // 로그인 상태를 변경하는 메서드
-    logIn() {
-      this.isLogined = true;
-    },
-    logOut() {
-      this.isLogined = false;
-    },
-  },
+const REST_API_URL = `http://localhost:8080/api/users`
+
+export const useUserStore = defineStore('user', () => {
+  const isLogined = ref(false);
+
+  const login = function(user) {
+    axios({
+      url: REST_API_URL + "/login",
+      method: "POST",
+      data: user
+    })
+    .then(() => {
+      console.log("완료2222");
+      isLogined.value = true;
+      console.log("isLogin: " , isLogined);
+      router.push("/");
+
+    })
+    .catch(() => {
+      console.log(실패);
+    })
+  }
+  return {login,isLogined};
 });

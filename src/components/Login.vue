@@ -18,12 +18,14 @@
         <v-text-field
             width="60%"
             label="email"
+            v-model="user.email"
             variant="outlined"
         ></v-text-field>
 
         <v-text-field
           width="60%"
           label="password"
+          v-model="user.password"
           variant="outlined"
           :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
           :type="visible ? 'text' : 'password'"
@@ -54,12 +56,17 @@ const visible = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 
+const user = ref({
+  email: '',
+  password: '',
+})
+
 const goToSignUp = () =>  {
   router.push('signup')
 }
 
 const goToLogin = () => {
-  userStore.logIn();
+  userStore.login(user.value);
   router.push('/')
 }
 </script>
