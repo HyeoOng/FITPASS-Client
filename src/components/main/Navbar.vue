@@ -80,8 +80,7 @@ import logo from '@/assets/logo.png';
 // 로컬 이미지 경로를 ref로 저장
 const logoSrc = ref(logo);
 const goToMain = () => {
-  userStore.logOut();
-  router.push('/');
+  userStore.logout();
 }
 
 const goToProfile = () => {

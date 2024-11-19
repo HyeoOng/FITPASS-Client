@@ -50,5 +50,22 @@ export const useUserStore = defineStore('user', () => {
       console.log(response);
     })
   }
-  return {signup, login,isLogined};
+
+  const logout = function() {
+    axios({
+      url: REST_API_URL + "/logout",
+      method: 'GET'
+    })
+    .then(() => {
+      sessionStorage.removeItem('userId');
+      sessionStorage.removeItem('nickname');
+      isLogined.value = false;
+      router.push("/");
+    })
+    .catch(() => {
+      console.log();
+    })
+  }
+
+  return {signup, login,isLogined, logout};
 });
