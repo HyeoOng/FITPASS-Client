@@ -59,7 +59,7 @@ import AdminDialogCard from './AdminDialogCard.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
-const userNn = ref("혜옹");
+const userNn = sessionStorage.getItem("nickname");
 const adminDialog = ref(false);
 
 const goToLogin = () => {
