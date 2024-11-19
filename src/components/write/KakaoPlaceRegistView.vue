@@ -3,7 +3,9 @@
     <h4 class="font-weight-medium pb-5" style="color: gray">장소 검색</h4>
     <v-row class="searchForm pb-0">
       <v-col cols="11" class="pa-0">
-        <v-text-field variant="outlined" class="pa-0" v-model="searchKeyword"></v-text-field>
+        <v-text-field variant="outlined" class="pa-0" 
+        v-model="searchKeyword"
+        @key.enter="searchPlace"></v-text-field>
       </v-col>
       <v-col cols="1">
         <v-btn variant="plain" class="text-primary" @click="searchPlace">검색</v-btn>
@@ -87,7 +89,7 @@ const selectPlace = (place) => { // 장소 선택
   showResultPlaceName.value = true;
 
   // 부모에게 선택한 장소 정보를 전달
-  emit("select-place", resultPlace);
+  emit("select-place", resultPlace.value);
 }
 </script>
 

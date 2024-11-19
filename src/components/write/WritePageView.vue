@@ -22,7 +22,7 @@
             <v-select
               v-model="post.sportCode"
               :items="sportStore.sports"
-              item-text="sportName"
+              item-title="sportName"
               item-value="sportCode"
               label="운동 종목"
               placeholder="운동 종목을 선택하세요"
@@ -102,12 +102,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, toRaw, unref } from "vue";
 import { useSportStore } from '@/stores/sport';
+import { usePostStore } from "@/stores/post";
 
 import KakaoPlaceRegistView from "@/components/write/KakaoPlaceRegistView.vue";
 
 const sportStore = useSportStore();
+const postStore = usePostStore();
 
 const photoUrl = ref(null); // 사진 미리보기 용 변수
 
@@ -163,14 +165,25 @@ const submitForm = () => {
     }
     return
   }
+
+  // console.log("현재 데이터 확인하기..");
+  // console.log("post: ", toRaw(post.value));
+  // console.log("place: ", toRaw(place.value));
+  // console.log("file: ", toRaw(file.value));
   const formData = new FormData();
-  formData.append("post", new Blob([JSON.stringify(post)],{
+  formData.append("post", new Blob([JSON.stringify(toRaw(post.value))],{
     type: "application/json"}));
-  formData.append("place", new Blob([JSON.stringify(place)], {
+  formData.append("place", new Blob([JSON.stringify(toRaw(place.value))], {
     type: "application/json"
   }));
   formData.append("file", file.value);
-  console.log("작성 내용 : ", formData.value);
+  console.log("js에서 formData: ", formData)
+
+  postStore.registPost(formData);
+  // console.log("작성 내용 : ");
+  // for (const [key, value] of formData.entries()) {
+  //   console.log(key, value);
+  // }
 };
 ////////////////////////
 

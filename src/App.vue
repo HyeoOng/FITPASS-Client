@@ -5,14 +5,7 @@
 </template>
 
 <script setup>
-import { useSportStore } from './stores/sport';
-import { onMounted } from 'vue';
 
-const sportStore = useSportStore();
-
-onMounted(async () => {
-  await sportStore.getSportsArr(); // 앱 로딩 시 sports 배열 초기화
-});
 </script>
 
 <style>
