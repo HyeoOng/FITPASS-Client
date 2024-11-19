@@ -9,7 +9,7 @@
     <div class="profile-info">
       <div class="profile-img-container">
         <img
-          :src="profileData.profilePicture ? profileData.profilePicture : defaultProfileImg"
+          :src="profileData.profile ? profileData.profile : defaultProfileImg"
           alt="프로필 사진"
           class="profileImg"
         />
@@ -27,15 +27,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import defaultProfileImg from '@/assets/profile.png';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
 
 const profileData = ref({
-  profilePicture: null,
-  name: '나혜원',
-  nickname: '혜옹',
-  email: 'heyhey@example.com',
+  name: '',
+  nickname: '',
+  email: '',
+  profile: '',
+});
+
+onMounted(async () => {
+  try {
+    const userId = sessionStorage.getItem("userId");
+    const user = await userStore.getUserByUserId(parseInt(userId));
+    if (user) {
+      profileData.value = {
+        name: user.name || '이름 없음',  // 기본값 처리
+        nickname: user.nn || '닉네임 없음',  // 기본값 처리
+        email: user.email || '이메일 없음',  // 기본값 처리
+        profile: user.profile ? user.profile : defaultProfileImg,  // 프로필 사진 처리
+      };
+    } else {
+      console.error("User data is missing or malformed.");
+      alert("사용자 데이터를 가져오는 데 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    alert("사용자 정보를 가져오는 중 오류가 발생했습니다.");
+  }
 });
 
 const router = useRouter();
