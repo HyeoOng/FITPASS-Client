@@ -10,6 +10,22 @@ const REST_API_URL = `http://localhost:8080/api/users`
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(false);
 
+  const signup = function(user) {
+    axios({
+      url: REST_API_URL + "/signup",
+      method: "POST",
+      data: user
+    })
+    .then((response) => {
+      console.log(response.data);
+      router.push({name: "home"});
+
+    })
+    .catch((response) => {
+      console.log(response.data);
+    })
+  }
+
   const login = function(user) {
     axios({
       url: REST_API_URL + "/login",
@@ -17,7 +33,6 @@ export const useUserStore = defineStore('user', () => {
       data: user
     })
     .then((response) => {
-      console.log("완료2222");
       isLogined.value = true;
       console.log("isLogin: " , isLogined);
       router.push("/");
@@ -29,5 +44,5 @@ export const useUserStore = defineStore('user', () => {
       console.log(response);
     })
   }
-  return {login,isLogined};
+  return {signup, login,isLogined};
 });
