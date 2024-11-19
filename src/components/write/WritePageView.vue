@@ -7,7 +7,7 @@
       <v-card-title>
         <h3 class="font-weight-black pb-3">제목</h3>
         <v-text-field
-          v-model="formData.title"
+          v-model="post.title"
           label="title"
           placeholder="제목을 입력하세요"
           variant="outlined"
@@ -20,8 +20,10 @@
         <v-row>
           <v-col cols="7">
             <v-select
-              v-model="formData.sport"
-              :items="sports"
+              v-model="post.sportCode"
+              :items="sportStore.sports"
+              item-text="sportName"
+              item-value="sportCode"
               label="운동 종목"
               placeholder="운동 종목을 선택하세요"
               variant="outlined"
@@ -30,8 +32,10 @@
           </v-col>
           <v-col cols="5">
             <v-select
-              v-model="formData.duration"
+              v-model="post.exerciseDuration"
               :items="durations"
+              item-title="text" 
+              item-value="value"
               label="운동 시간"
               placeholder="운동 시간을 선택하세요"
               variant="outlined"
@@ -43,7 +47,7 @@
 
       <v-card-text>
         <v-textarea
-          v-model="formData.content"
+          v-model="post.content"
           label="글 내용"
           placeholder="내용을 입력하세요"
           variant="outlined"
@@ -54,7 +58,7 @@
         <KakaoPlaceRegistView @select-place="setPlace" />
 
         <v-file-input
-          v-model="formData.photo"
+          v-model="file"
           label="사진을 업로드하세요"
           accept="image/*"
           variant="outlined"
@@ -65,7 +69,7 @@
         ></v-file-input>
 
         <!-- 사진 미리보기 -->
-        <div v-if="formData.photo" class="photo-preview">
+        <div v-if="file" class="photo-preview">
           <h3 class="mt-3 mb-3">미리보기</h3>
           <img :src="photoUrl" alt="업로드된 사진" class="preview-image" />
         </div>
@@ -76,8 +80,10 @@
         <v-row justify="end">
           <v-col cols="4">
             <v-select
-              v-model="formData.isPublic"
+              v-model="post.isPublic"
               :items="publicSelect"
+              item-title="text" 
+              item-value="value"
               label="공개 여부"
               variant="outlined"
               density="compact"
@@ -96,35 +102,35 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { useSportStore } from '@/stores/sport';
+
 import KakaoPlaceRegistView from "@/components/write/KakaoPlaceRegistView.vue";
 
-const post = ref({
+const sportStore = useSportStore();
 
+const photoUrl = ref(null); // 사진 미리보기 용 변수
+
+const post = ref({
+  title: null,
+  content: null,
+  userId: sessionStorage.getItem("userId"),
+  sportCode: null,
+  exerciseDuration: 30,
+  isPublic: 0
 });
 
-const place = ref({})
+const file = ref(null); // 서버 전송을 위한 변수
 
+const place = ref({}) // 서버 전송을 위한 함수 -> 카카오에서 전달..
 // place 선택 함수
 const setPlace = (selectPlace) => {
   place.value = selectPlace;
 }
 
-const formData = ref({
-  title: "",
-  content: "",
-  sport: null,
-  exerciseDuration: null,
-  photo: "",
-  isPublic: "전체 공개",
-});
 
-const photoUrl = ref(null);
 
-const sports = ref(["수영", "배구", "야구", "농구"]);
-const durations = ref(["30분", "60분", "90분", "120분", "150분", "180분"]);
-const publicSelect = ref(['전체 공개', '친구 공개', '나만 보기']);
-
+// 사진 미리보기를 위한 함수
 const onFileChange = (event) => {
   const files = event.target?.files || [];
   if (files.length === 0) {
@@ -132,23 +138,84 @@ const onFileChange = (event) => {
     console.error("파일이 선택되지 않았습니다.");
     return;
   }
-
-  const file = files[0]; // 첫 번째 파일 가져오기
-
+  const selectedFile = files[0]; // 첫 번째 파일 가져오기
+  // 기존 미리보기 URL 해제
+  if (photoUrl.value) {
+    URL.revokeObjectURL(photoUrl.value);
+  }
   // 파일이 이미지인 경우에만 처리
-  if (file && file.type.startsWith('image/')) {
-    formData.value.photo = file;  // 사진 파일 저장
-    photoUrl.value = URL.createObjectURL(file);  // 미리보기 URL 생성
+  if (selectedFile && selectedFile.type.startsWith('image/')) {
+    file.value = selectedFile;  // 사진 파일 저장
+    photoUrl.value = URL.createObjectURL(selectedFile);  // 미리보기 URL 생성
   } else {
     alert('이미지 파일만 업로드 가능합니다.');
     console.error("유효하지 않은 파일:", file);
+    file.value = null;
+    photoUrl.value = null;
   }
 }
 
+// 글 등록하기 버튼
 const submitForm = () => {
+  if(!validateObj(post, "post") || !validateObj(place, "place") || !file.value){
+    if(!file.value){
+      alert("파일을 선택해주세요!");
+    }
+    return
+  }
+  const formData = new FormData();
+  formData.append("post", new Blob([JSON.stringify(post)],{
+    type: "application/json"}));
+  formData.append("place", new Blob([JSON.stringify(place)], {
+    type: "application/json"
+  }));
+  formData.append("file", file.value);
   console.log("작성 내용 : ", formData.value);
 };
+////////////////////////
 
+const validateObj = (obj, objName) => {
+  for (const [key, value] of Object.entries(obj.value)) {
+    // 필드 이름을 더 친숙하게 변환
+    const displayName = {
+      title: "제목",
+      content: "내용",
+      sportCode: "운동 종목",
+      exerciseDuration: "운동 시간",
+      isPublic: "공개 여부"
+    }[key] || key;
+
+    if (value === null || value === "") {
+      alert(`${displayName} 항목을 입력해주세요.`);
+      return false; // 검증 실패
+    }
+  }
+  
+  // place 객체 검증 (null일 경우 "장소를 클릭해주세요" 메시지 표시)
+  if (objName === "place" && (!obj.value || Object.keys(obj.value).length === 0)) {
+    alert("장소를 클릭해주세요.");
+    return false;
+  }
+
+  return true; // 검증 성공
+};
+
+///////////////////////////////////////////computed///////////////////
+// 운동 시간 select에 표시하는 computed 메서드
+const durations = ref([
+  {text: "30분", value: 30},
+  {text: "60분", value: 60},
+  {text: "90분", value: 90},
+  {text: "120분", value: 120},
+  {text: "150분", value: 150},
+  {text: "180분", value: 180},
+]);
+
+const publicSelect = ref([
+  {text: "전체 공개", value: 0},
+  {text: "친구 공개", value: 1},
+  {text: "나만 보기", value: 2},
+]);
 
 </script>
 
