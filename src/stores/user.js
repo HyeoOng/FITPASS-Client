@@ -18,12 +18,18 @@ export const useUserStore = defineStore('user', () => {
     })
     .then((response) => {
       console.log(response.data);
-      router.push({name: "home"});
+      const msg = response.data.msg;
+      
+      router.push("/");
+
+      if (msg == "success") {
+        alert("회원 가입에 성공했습니다. 로그인 창으로 이동해주세요");
+      }
 
     })
-    .catch((response) => {
-      console.log(response.data);
-    })
+    .catch((error) => {
+    console.error(error.response?.data || error.message); // 에러 응답 데이터를 출력
+    });
   }
 
   const login = function(user) {
