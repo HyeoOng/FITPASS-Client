@@ -20,11 +20,11 @@ export const usePostStore = defineStore('post', () => {
   const getMyPosts = async (userId) => {
     try{
       const resp = await axios.get(REST_API_URL+ "/user/"+userId)
-      console.log("응답 데이터(내 포스트 불러오기): ",resp.data);
+      // console.log("응답 데이터(내 포스트 불러오기): ",resp.data);
       myPosts.value = resp.data
       return myPosts;
     } catch(error){
-      console.error(error);
+      console.error("posts 불러오는 오류 (in post.js): ", error);
       return null;
     }
   }

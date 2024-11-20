@@ -8,7 +8,8 @@
         <v-col v-for="(post, index) in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
           <v-hover v-slot="{ isHovering, props }">
             <v-card class="mx-auto" max-width="350" v-bind="props">
-              <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg" />
+              <!-- <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg" /> -->
+              <v-img :src="photoStore.getPhoto(post.photoUrl)" aspect-ratio="16/9" />
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
@@ -38,15 +39,16 @@
 
 <script setup>
 import { ref, computed, toRaw, onMounted, watch } from 'vue';
+import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
 import DetailPostView from './DetailPostView.vue';
 import { usePostStore } from '@/stores/post';
-import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
+import { usePhotoStore } from '@/stores/photo';
 
 const router = useRouter();
 const postStore = usePostStore();
+const photoStore = usePhotoStore();
 
 const posts = ref([])
-loadPosts();
 
 const selectedPost = ref({});
 const currentPage = ref(1);
@@ -87,6 +89,7 @@ const loadPosts = async () => {
     console.error("posts 불러오는 중 에러 만남 : ", error);
   }
 };
+loadPosts();
 
 onMounted(() => {
   loadPosts();
