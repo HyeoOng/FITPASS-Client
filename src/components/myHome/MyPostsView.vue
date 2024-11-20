@@ -46,6 +46,7 @@ const router = useRouter();
 const postStore = usePostStore();
 
 const posts = ref([])
+loadPosts();
 
 const selectedPost = ref({});
 const currentPage = ref(1);
