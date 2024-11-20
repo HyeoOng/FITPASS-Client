@@ -181,7 +181,7 @@ const submitForm = () => {
   if(successFlag){
     router.push("/");
   }else{
-    alert("글 등록에 실패하였습니다. <br> 잠시 후 다시 시도해주세요.")
+    alert(`글 등록에 실패하였습니다. <br>잠시 후 다시 시도해주세요.`)
   }
 
 };

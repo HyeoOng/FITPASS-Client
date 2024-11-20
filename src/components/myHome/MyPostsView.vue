@@ -37,10 +37,10 @@
 </template>
 
 <script setup>
-import { ref, computed, toRaw, onMounted } from 'vue';
+import { ref, computed, toRaw, onMounted, watch } from 'vue';
 import DetailPostView from './DetailPostView.vue';
 import { usePostStore } from '@/stores/post';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
 
 const router = useRouter();
 const postStore = usePostStore();
@@ -66,10 +66,11 @@ const showDetailPost = (post) => {
   showDetail.value = true;
 }
 
-onMounted(async () => {
-  try{
+// 글을 불러오는 함수
+const loadPosts = async () => {
+  try {
     const userId = sessionStorage.getItem("userId");
-    if(userId){
+    if (userId) {
       const resp = await postStore.getMyPosts(userId);
       if (!resp?.value || !Array.isArray(resp.value)) {
         console.warn("서버에서 예상치 못한 응답을 받았습니다.");
@@ -78,13 +79,35 @@ onMounted(async () => {
         posts.value = toRaw(resp.value);
       }
     } else {
-      alert("로그인 먼저 해주세요!")
+      alert("로그인 먼저 해주세요!");
       router.push("/login");
     }
-  } catch(error){
-    console.error("posts 불러오는 중 에러 만남 : ", error)
+  } catch (error) {
+    console.error("posts 불러오는 중 에러 만남 : ", error);
   }
+};
+
+onMounted(() => {
+  loadPosts();
 })
+
+onBeforeRouteUpdate(async (to, from, next) => {
+  await loadPosts().then(() => {
+    next(); // 데이터가 로드된 후에 페이지를 이동
+  });
+});
+
+watch(posts, (newPosts, oldPosts) => {
+  if (newPosts !== oldPosts) {
+    console.log("posts가 갱신되었습니다", newPosts);
+    // 갱신된 posts로 필요한 추가 작업을 수행할 수 있습니다.
+  }
+});
+
+onBeforeRouteLeave(() => {
+  loadPosts();
+})
+
 </script>
 
 <style scoped>

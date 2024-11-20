@@ -8,9 +8,9 @@ export const usePostStore = defineStore('post', () => {
 
   const myPosts = ref([]);
   
-  const registPost = (input) => {
+  const registPost = async (input) => {
     // console.log("input: ", input)
-    axios.post(REST_API_URL, input, {
+    await axios.post(REST_API_URL, input, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
