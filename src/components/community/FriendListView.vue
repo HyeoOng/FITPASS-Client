@@ -26,7 +26,29 @@
             <p class="my-1">프로필</p>
           </v-col>
           <v-col cols="2">
-            <v-btn variant="plain" @click="removeFriend(idx)">삭제</v-btn>
+            <v-btn variant="plain" @click="removeFriend(friend)">삭제</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-container>
+
+    <h2> 받은 친구 요청 </h2>
+    <v-container class="friends-container friend-list">
+      <p v-if="requestList.length==0">요청이 없습니다.</p>
+      <v-container v-for="(friend, idx) in requestList" :key="friend.id" class="friend-container friend-profile">
+        <v-row class="d-flex align-center">
+          <v-col cols="3">
+            <v-avatar :image="imgSrc" size="40"></v-avatar>
+          </v-col>
+          <v-col cols="5">
+            <h3 class="font-weight-bold">{{ friend.nn }}</h3>
+            <p class="my-1">프로필</p>
+          </v-col>
+           <v-col cols="2">
+            <v-btn variant="plain" @click="acceptFriendRequest(friend)">수락</v-btn>
+          </v-col>
+          <v-col cols="2">
+            <v-btn variant="plain" @click="removeFriendRequest(friend)">삭제</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -62,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, toRaw } from 'vue';
+import { ref, toRaw, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useFriendStore } from '@/stores/friend';
 import imgSrc from '@/assets/profile.png';
@@ -74,13 +96,14 @@ const searchRes = ref(false); // 검색 버튼을 눌렀을 때, 검색 결과�
 const nickname = ref(sessionStorage.getItem("nickname"));
 const searchNickName = ref("");
 const friendList = ref([]); // 친구 리스트 상태
+const requestList = ref([]); // 요청 받은 목록 
 const searchFriendList = ref([]); // 검색된 친구 리스트 상태
 
 // 친구 목록 갱신 함수
 const updateFriendList = async () => {
   try {
     const userId = sessionStorage.getItem("userId");
-    const response = await friendStore.getFriends(userId); // getFriends 호출
+    const response = await friendStore.getFriends(userId); // 친구 목록 불러오기
     if (Array.isArray(response)) {
       friendList.value = toRaw(response); // 친구 리스트 업데이트
     } else {
@@ -92,8 +115,18 @@ const updateFriendList = async () => {
 };
 
 // 친구 삭제 함수
-const removeFriend = async (index) => {
-  friendList.value.splice(index, 1); // 배열에서 해당 index의 친구 삭제
+const removeFriend = async (friend) => {
+  // friendList.value.splice(index, 1); // 배열에서 해당 index의 친구 삭제
+  try {
+    const response = await friendStore.deleteFriend(sessionStorage.getItem("userId"), friend.userId);
+    if (response.msg == "success") {
+      console.log("성공적으로 친구를 삭제했습니다.");
+    } else {
+      console.log("친구를 삭제하지 못했습니다.");
+    }
+  } catch (error) {
+    console.log("친구 삭제 중 오류 발생: ", error);
+  }
   await updateFriendList(); // 친구 목록 갱신
 };
 
@@ -120,9 +153,16 @@ const searchFriends = async (nn) => {
 // 친구 요청 보내는 함수
 const addFriend = async (toUser) => {
   try {
-    const response = await friendStore.sendFriendRequest(sessionStorage.getItem("userId"), toUser.userId);
+    const response = await friendStore.sendFriendRequest(sessionStorage.getItem("userId"), toUser.userId); // 백엔드로부터 응답 받기
     if (response.msg === "success") {
       alert("친구 요청을 성공적으로 보냈습니다");
+
+      // 친구 요청을 보낸 유저를 searchFriendList에서 제거
+      const index = searchFriendList.value.findIndex(friend => friend.userId === toUser.userId);
+      if (index !== -1) {
+        searchFriendList.value.splice(index, 1); // 해당 유저 제거
+      }
+
       await updateFriendList(); // 친구 목록 갱신
     } else {
       alert("친구 요청을 보낼 수 없습니다.");
@@ -132,9 +172,48 @@ const addFriend = async (toUser) => {
   }
 };
 
+// 친구 요청 받은 목록 확인하는 함수
+const getFriendRequest = async () => {
+  try {
+    const response = await friendStore.getFriendRequests(sessionStorage.getItem("userId"));
+    if (Array.isArray(response)) {
+      requestList.value = toRaw(response); // 친구 요청 목록 업데이트
+    } else {
+      console.error('친구 요청 목록을 가져오는 데 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('친구 요청 목록 갱신 중 오류 발생:', error);
+  }
+}
 // 초기 친구 목록 로드
 updateFriendList();
 
+// 처음 페이지 로드될 때 친구 요청 목록 불러오기 
+onMounted(() => {
+  getFriendRequest();
+});
+
+// 친구 요청 수락하는 함수 
+const acceptFriendRequest = async (toUser) => {
+  try {
+    const response = await friendStore.sendFriendRequest(sessionStorage.getItem("userId"), toUser.userId);
+    if (response.msg === "success") {
+      alert("친구 요청을 수락했습니다.");
+
+      // 친구 요청 목록에서 해당 유저 제거
+      const index = requestList.value.findIndex(friend => friend.userId === toUser.userId);
+      if (index !== -1) {
+        requestList.value.splice(index, 1); // 유저를 배열에서 삭제
+      }
+
+      await updateFriendList(); // 친구 목록 갱신
+    } else {
+      alert("친구 요청을 수락할 수 없습니다.");
+    }
+  } catch (error) {
+    console.log('친구 수락 요청 중 오류 발생: ', error);
+  }
+}
 </script>
 
 
