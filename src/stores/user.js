@@ -8,11 +8,11 @@ axios.defaults.withCredentials = true; // 필요 시 유지
 const REST_API_URL = `http://localhost:8080/api/users`;
 
 export const useUserStore = defineStore('user', () => {
-  const isLogined = ref(false);
+  const isLogined = ref(sessionStorage.getItem('userId') !== null);
   const userNn = ref(sessionStorage.getItem("nickname") || "USER");
 
   const setNickname = (nn) => {
-    userNn.value = nn;
+    userNn.value = nn; // 화면에 표시되는 닉네임 값
     sessionStorage.setItem('nickname', nn)
   }
 

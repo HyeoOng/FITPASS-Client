@@ -199,7 +199,7 @@ const validateObj = (obj, objName) => {
     }[key] || key;
 
     if (value === null || value === "") {
-      alert(`${displayName} 항목을 입력해주세요.`);
+      alert(`${displayName}을 입력해주세요.`);
       return false; // 검증 실패
     }
   }
