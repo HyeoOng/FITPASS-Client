@@ -9,6 +9,17 @@ const REST_API_URL = `http://localhost:8080/api/users`;
 
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(false);
+  const userNn = ref(sessionStorage.getItem("nickname") || "USER");
+
+  const setNickname = (nn) => {
+    userNn.value = nn;
+    sessionStorage.setItem('nickname', nn)
+  }
+
+  const clearNickname = () => {
+    userNn.value = null;
+    sessionStorage.removeItem('nickname');
+  }
 
   const signup = async function (user) {
     try {
@@ -32,9 +43,11 @@ export const useUserStore = defineStore('user', () => {
       const response = await axios.post(`${REST_API_URL}/login`, user);
       isLogined.value = true;
       console.log("isLogined:", isLogined.value);
+      console.log("로그인 정보 : ", response)
 
       sessionStorage.setItem("userId", response.data.userId);
-      sessionStorage.setItem("nickname", response.data.nickname);
+      setNickname(response.data.nickname);
+      // sessionStorage.setItem("nickname", response.data.nickname);
 
       router.push("/");
     } catch (error) {
@@ -47,7 +60,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       await axios.get(`${REST_API_URL}/logout`);
       sessionStorage.removeItem("userId");
-      sessionStorage.removeItem("nickname");
+      clearNickname();
       isLogined.value = false;
       router.push("/");
     } catch (error) {
@@ -66,5 +79,5 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
-  return { signup, login, isLogined, logout, getUserByUserId };
+  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname };
 });

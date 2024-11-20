@@ -2,7 +2,7 @@
   <div class="main-div mt-10 ml-25 mr-25">
     <h2 class="font-weight-black">내가 작성한 글</h2>
     <br>
-    <v-container class="posts-container">
+    <v-container class="posts-container" v-if="posts.length > 0">
       <v-row class="mb-4 d-flex flex-wrap" :key="currentPage">
         <!-- 각 카드를 5개씩 표시 -->
         <v-col v-for="(post, index) in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
@@ -21,60 +21,70 @@
       <!-- Pagination -->
       <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" circle></v-pagination>
     </v-container>
-
+    <v-container v-else class="posts-container text-center w-full">
+      아직 작성된 글이 없습니다. <br>
+      글을 작성해주세요!
+    </v-container>
     <v-dialog 
       v-model="showDetail"
       max-width="80%"
       max-height="75%"
     >
-      <DetailPostView v-if="selectedPost" :post="selectedPost" />
+      <DetailPostView v-if="showDetail && selectedPost" :post="selectedPost" />
     </v-dialog>
 
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw, onMounted } from 'vue';
 import DetailPostView from './DetailPostView.vue';
+import { usePostStore } from '@/stores/post';
+import { useRouter } from 'vue-router';
 
-const posts = ref([
-  { postId: 1, title: "카우링 스타아", content: "내용1", userId: 1, placeId: 1, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 2, title: "밤 하늘의 벼어얼", content: "내용2", userId: 1, placeId: 2, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 3, title: "배럴댄열루이비똥 루이비또옹ㅇㅇㅇㅇㅇㅇㅇㅇㅇ", content: "내용3", userId: 1, placeId: 3, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" , sportCode: 1},
-  { postId: 4, title: "카우링 스타아 스타아", content: "내용4", userId: 1, placeId: 4, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 5, title: "팜하늘의 벼어어엉ㄹ", content: "내용5", userId: 1, placeId: 5, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 6, title: "제목6", content: "내용6", userId: 1, placeId: 6, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 7, title: "제목7", content: "내용7", userId: 1, placeId: 7, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 8, title: "제목8", content: "내용8", userId: 1, placeId: 8, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 9, title: "제목9", content: "내용9", userId: 1, placeId: 9, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 10, title: "제목10", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 11, title: "제목11", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 12, title: "제목12", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 13, title: "제목13", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 14, title: "제목14", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 15, title: "제목15", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 16, title: "제목16", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 17, title: "제목17", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-  { postId: 18, title: "제목18", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png", sportCode: 1 },
-]);
+const router = useRouter();
+const postStore = usePostStore();
+
+const posts = ref([])
 
 const selectedPost = ref({});
 const currentPage = ref(1);
 const postsPerPage = 8;
-const totalPages = computed(() => Math.ceil(posts.value.length / postsPerPage));
 const showDetail = ref(false);
+
+const totalPages = computed(() => Math.ceil(posts.value.length / postsPerPage) || 1);
 
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
   const start = (currentPage.value - 1) * postsPerPage;
   const end = start + postsPerPage;
-  return posts.value.slice(start, end);
+  return Array.isArray(posts.value) ? posts.value.slice(start, end) : [];
 });
 
 const showDetailPost = (post) => {
   selectedPost.value = post;
   showDetail.value = true;
 }
+
+onMounted(async () => {
+  try{
+    const userId = sessionStorage.getItem("userId");
+    if(userId){
+      const resp = await postStore.getMyPosts(userId);
+      if (!resp?.value || !Array.isArray(resp.value)) {
+        console.warn("서버에서 예상치 못한 응답을 받았습니다.");
+        posts.value = [];
+      } else {
+        posts.value = toRaw(resp.value);
+      }
+    } else {
+      alert("로그인 먼저 해주세요!")
+      router.push("/login");
+    }
+  } catch(error){
+    console.error("posts 불러오는 중 에러 만남 : ", error)
+  }
+})
 </script>
 
 <style scoped>

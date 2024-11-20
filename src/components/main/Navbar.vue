@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
@@ -59,7 +59,8 @@ import AdminDialogCard from './AdminDialogCard.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
-const userNn = ref(sessionStorage.getItem("nickname"));
+
+const userNn = computed(() => userStore.userNn);
 const adminDialog = ref(false);
 
 const goToLogin = () => {
@@ -86,6 +87,10 @@ const goToMain = () => {
 const goToProfile = () => {
   router.push('/profile');
 }
+
+onMounted(() => {
+  userNn.value = sessionStorage.getItem("nickname");
+})
 </script>
 
 <style scoped>
