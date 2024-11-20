@@ -11,14 +11,14 @@
         <!-- 프로필 사진 미리보기 -->
         <div class="profile-img-container">
           <img
-            :src="formData.profilePicture ? formData.profilePicture : defaultProfileImg"
+            :src="formData.profile ? formData.profile : defaultProfileImg"
             alt="프로필 사진 미리보기"
             class="profileImg"
           />
         </div>
 
         <v-file-input
-          v-model="formData.profilePicture"
+          v-model="formData.profile"
           :show-size="1000"
           label="프로필 사진 변경"
           placeholder="프로필 사진을 변경해 보세요!"
@@ -70,16 +70,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 import defaultProfileImg from '@/assets/profile.png';
 
+const userStore = useUserStore();
+
 const formData = ref({
-  profilePicture: null,
+  profile: null,
   name: '나혜원',
   nickname: '',
   email: 'heyhey@example.com', // 기본 이메일 값 추가
+});
+
+onMounted(async () => {
+  try {
+    const userId = sessionStorage.getItem("userId");
+    const user = await userStore.getUserByUserId(parseInt(userId));
+    if (user) {
+      formData.value = {
+        name: user.name || '이름 없음',  // 기본값 처리
+        nickname: user.nn || '닉네임 없음',  // 기본값 처리
+        email: user.email || '이메일 없음',  // 기본값 처리
+        profile: user.profile ? user.profile : defaultProfileImg,  // 프로필 사진 처리
+      };
+    } else {
+      console.error("User data is missing or malformed.");
+      alert("사용자 데이터를 가져오는 데 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    alert("사용자 정보를 가져오는 중 오류가 발생했습니다.");
+  }
 });
 
 const router = useRouter();
