@@ -10,6 +10,7 @@ const REST_API_URL = `http://localhost:8080/api/users`;
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(sessionStorage.getItem('userId') !== null);
   const userNn = ref(sessionStorage.getItem("nickname") || "USER");
+  const searchFriendsList = ref([])
 
   const setNickname = (nn) => {
     userNn.value = nn; // 화면에 표시되는 닉네임 값
@@ -79,5 +80,18 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
-  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname };
+  const getUsersByNn = async function (nn) {
+    try {
+      const response = await axios.get(`${REST_API_URL}/search?nn=${nn}`);
+      // console.log("친구 응답: ", response.data);
+      searchFriendsList.value = response.data;
+      console.log("sera124", searchFriendsList.value);
+      return searchFriendsList;
+    } catch (error) {
+      throw error;
+    }
+    
+  }
+
+  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList };
 });
