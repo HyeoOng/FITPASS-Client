@@ -16,9 +16,15 @@ export const usePostStore = defineStore('post', () => {
     }).then(() => true).catch(() => false);
   }
 
-  const getMyPosts = async (userId) => {
+  const getMyPosts = async (userId, page, size) => {
     try{
-      const resp = await axios.get(REST_API_URL+ "/user/"+userId)
+      const resp = await axios.get(REST_API_URL+ "/user/"+userId, {
+        params: {
+          page: page-1,
+          size,
+        }
+      })
+      // console.log("pagenation: ",resp.data);
       myPosts.value = resp.data
       return myPosts;
     } catch(error){

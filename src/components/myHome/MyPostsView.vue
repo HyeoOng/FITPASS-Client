@@ -23,7 +23,7 @@
         </v-col>
       </v-row>
       <!-- Pagination -->
-      <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" circle></v-pagination>
+      <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"  @update:modelValue="loadPosts" circle></v-pagination>
     </v-container>
     <v-container v-else class="posts-container text-center w-full">
       아직 작성된 글이 없습니다. <br>
@@ -55,17 +55,19 @@ const posts = ref([])
 const imageRefUrls = ref([])
 
 const selectedPost = ref({});
+
 const currentPage = ref(1);
 const postsPerPage = 8;
+
 const showDetail = ref(false);
 
-const totalPages = computed(() => Math.ceil(posts.value.length / postsPerPage) || 1);
+const totalPages = ref(1);
 
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
-  const start = (currentPage.value - 1) * postsPerPage;
-  const end = start + postsPerPage;
-  return Array.isArray(posts.value) ? posts.value.slice(start, end) : [];
+  // const start = (currentPage.value - 1) * postsPerPage;
+  // const end = start + postsPerPage;
+  return Array.isArray(posts.value) ? posts.value.slice(0, postsPerPage) : [];
 });
 
 const showDetailPost = (post) => {
@@ -75,15 +77,21 @@ const showDetailPost = (post) => {
 
 // 글을 불러오는 함수
 const loadPosts = async () => {
+  console.log("현재 내 페이지: ", currentPage.value);
   try {
     const userId = sessionStorage.getItem("userId");
     if (userId) {
-      const resp = await postStore.getMyPosts(userId);
-      if (!resp?.value || !Array.isArray(resp.value)) {
+      const resp = await postStore.getMyPosts(userId, currentPage.value, postsPerPage);
+      if (!resp?.value || !Array.isArray(resp.value.content)) {
         console.warn("서버에서 예상치 못한 응답을 받았습니다.");
         posts.value = [];
       } else {
-        posts.value = toRaw(resp.value);
+        // console.log("화면: ",resp.value);
+        const content = resp.value.content;
+        posts.value = Array.isArray(content) ? content : [content]; // 배열로 변환
+        totalPages.value = resp.value.totalPages;
+        // console.log("totalPages: ", totalPages.value)
+
         posts.value.forEach((post, idx) => {
           loadImage(post, idx);
         })
@@ -102,7 +110,7 @@ const loadImage = async (post, idx) => {
   console.log("post in loadImg function:", post)
   try {
     const blobUrl = await photoStore.getPhoto(post.photoUrl);
-    console.log("blob: ", blobUrl)
+    // console.log("blob: ", blobUrl)
     if (blobUrl) {
       imageRefUrls.value[idx] = blobUrl;
     } else {
@@ -117,12 +125,12 @@ onMounted(() => {
   loadPosts();
 })
 
-onBeforeRouteUpdate(async (to, from, next) => {
-  console.log("onBeforeRouteUpdate");
-  await loadPosts().then(() => {
-    next(); // 데이터가 로드된 후에 페이지를 이동
-  });
-});
+// onBeforeRouteUpdate(async (to, from, next) => {
+//   console.log("onBeforeRouteUpdate");
+//   await loadPosts().then(() => {
+//     next(); // 데이터가 로드된 후에 페이지를 이동
+//   });
+// });
 
 // watch(posts, (newPosts, oldPosts) => {
 //   if (newPosts !== oldPosts) {
