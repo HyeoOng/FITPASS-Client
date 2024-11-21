@@ -4,15 +4,18 @@
     <h2 class="font-weight-black">게시글 보기</h2>
     <v-container class="posts-container">
       <v-tabs v-model="tab" align-tabs="end" color="blue-lighten-2" class="mb-3">
-        <v-tab :value="'public'">전체</v-tab>
-        <v-tab :value="'friend'">친구</v-tab>
+        <v-tab :value="'public'" @click="handlePageChange('public')">전체</v-tab>
+        <v-tab :value="'friend'" @click="handlePageChange('friend')">친구</v-tab>
       </v-tabs>
       <v-row class="mb-4 d-flex flex-wrap" :key="currentPage">
         <!-- 각 카드를 4개씩 표시 -->
-        <v-col v-for="post in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
+        <v-col v-for="(post, idx) in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
           <v-hover v-slot="{ isHovering, props }">
             <v-card class="mx-auto" max-width="350" v-bind="props">
-              <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg" />
+              <v-img :src="imageRefUrls[idx]" 
+              lazy-src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg"
+              aspect-ratio="4/3" class="card-img" 
+              max-width="350"/>
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
@@ -38,80 +41,57 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { usePosts } from '@/util/usePosts';
+import { usePostStore } from '@/stores/post';
 
 import DetailPostView from '../myHome/DetailPostView.vue';
 
+const postStore = usePostStore();
+
+const { posts, imageRefUrls, totalPages, loadPosts } = usePosts();
+
 const tab = ref('public');
-const publicPosts = ref([
-  { postId: 1, title: "카우링 스타아", content: "내용1", userId: 1, placeId: 1, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 2, title: "밤 하늘의 벼어얼", content: "내용2", userId: 1, placeId: 2, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 3, title: "배럴댄열루이비똥 루이비또옹ㅇㅇㅇㅇㅇㅇㅇㅇㅇ", content: "내용3", userId: 1, placeId: 3, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 4, title: "카우링 스타아 스타아", content: "내용4", userId: 1, placeId: 4, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 5, title: "팜하늘의 벼어어엉ㄹ", content: "내용5", userId: 1, placeId: 5, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 6, title: "제목6", content: "내용6", userId: 1, placeId: 6, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 7, title: "제목7", content: "내용7", userId: 1, placeId: 7, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 8, title: "제목8", content: "내용8", userId: 1, placeId: 8, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 9, title: "제목9", content: "내용9", userId: 1, placeId: 9, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 10, title: "제목10", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 11, title: "제목11", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 12, title: "제목12", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 13, title: "제목13", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 14, title: "제목14", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 15, title: "제목15", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 16, title: "제목16", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 17, title: "제목17", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 18, title: "제목18", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 19, title: "제목19", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 20, title: "제목20", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 21, title: "제목21", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 22, title: "제목22", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-]);
-const friendPosts = ref([
-  { postId: 1, title: "친구야", content: "내용1", userId: 1, placeId: 1, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 2, title: "반갑다", content: "내용2", userId: 1, placeId: 2, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 3, title: "배럴댄열루이비똥 루이비또옹ㅇㅇㅇㅇㅇㅇㅇㅇㅇ", content: "내용3", userId: 1, placeId: 3, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 4, title: "카우링 스타아 스타아", content: "내용4", userId: 1, placeId: 4, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 5, title: "팜하늘의 벼어어엉ㄹ", content: "내용5", userId: 1, placeId: 5, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 6, title: "제목6", content: "내용6", userId: 1, placeId: 6, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 7, title: "제목7", content: "내용7", userId: 1, placeId: 7, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 8, title: "제목8", content: "내용8", userId: 1, placeId: 8, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 9, title: "제목9", content: "내용9", userId: 1, placeId: 9, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 10, title: "제목10", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 11, title: "제목11", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 12, title: "제목12", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 13, title: "제목13", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 14, title: "제목14", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 15, title: "제목15", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 16, title: "제목16", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 17, title: "제목17", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 18, title: "제목18", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 19, title: "제목19", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 20, title: "제목20", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 21, title: "제목21", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-  { postId: 22, title: "제목22", content: "내용10", userId: 1, placeId: 10, photoId: 2, exerciseDuration: 30, isPublic: 0, photoUrl: "@/assets/login.png" },
-]);
-const posts = ref([]);
 
 const currentPage = ref(1);
 const postsPerPage = 16;
-const totalPages = computed(() => Math.ceil(posts.value.length / postsPerPage));
 
 const showDetail = ref(false);
 const selectedPost = ref({});
 
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
-  posts.value = tab.value === 'public' ? publicPosts.value : friendPosts.value;
-  const start = (currentPage.value - 1) * postsPerPage;
-  const end = start + postsPerPage;
-  return posts.value.slice(start, end);
+  // posts.value = tab.value === 'public' ? publicPosts.value : friendPosts.value;
+  return posts.value.slice(0, postsPerPage);
 });
 
 const showDetailPost = (post) => {
   selectedPost.value = post;
   showDetail.value = true;
 }
+
+const handlePageChange = (tabVal) => {
+  let fetchPostsFn;
+
+  // tabVal에 따라 함수 결정
+  if (tabVal === 'friend') {
+    fetchPostsFn = (currentPage, postsPerPage) => postStore.getFriendsPosts(currentPage, postsPerPage);
+  } else {
+    // 기본값: 모든 사용자 글
+    fetchPostsFn = (currentPage, postsPerPage) => postStore.getAllPosts(currentPage, postsPerPage);
+  }
+
+
+  loadPosts(fetchPostsFn, currentPage.value, postsPerPage);
+};
+
+onMounted(() => {
+  loadPosts(
+    (currentPage, postsPerPage) => postStore.getAllPosts(currentPage, postsPerPage),
+    currentPage.value,
+    postsPerPage
+  );
+})
 </script>
 
 <style scoped>
@@ -132,5 +112,10 @@ const showDetailPost = (post) => {
 .v-pagination {
   margin-top: 20px;
   text-align: center;
+}
+
+.card-img{
+  object-fit: cover;
+  object-position: center
 }
 </style>
