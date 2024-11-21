@@ -27,6 +27,13 @@ export const useFriendStore = defineStore('friend', () => {
     return response.data;
   }
 
+  const deleteFriendRequest = async (fromUser, toUser) => {
+    const response = await axios.post(`${REST_API_URL}/request/delete`, {
+      fromUser, toUser
+    })
+    return response.data;
+  }
+
   const deleteFriend = async (fromUser, toUser) => {
     const response = await axios.post(`${REST_API_URL}/delete`, {
       fromUser, toUser
@@ -34,5 +41,5 @@ export const useFriendStore = defineStore('friend', () => {
     return response.data;
   }
 
-  return { sendFriendRequest, getFriends, getFriendRequests, deleteFriend };
+  return { sendFriendRequest, getFriends, getFriendRequests, deleteFriendRequest, deleteFriend };
 });

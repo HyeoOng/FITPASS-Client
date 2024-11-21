@@ -48,7 +48,7 @@
             <v-btn variant="plain" @click="acceptFriendRequest(friend)">수락</v-btn>
           </v-col>
           <v-col cols="2">
-            <v-btn variant="plain" @click="removeFriendRequest(friend)">삭제</v-btn>
+            <v-btn variant="plain" @click="removeFriendRequest(friend, idx)">삭제</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -117,7 +117,8 @@ const updateFriendList = async () => {
 // 친구 삭제 함수
 const removeFriend = async (friend) => {
   // friendList.value.splice(index, 1); // 배열에서 해당 index의 친구 삭제
-  try {
+  if (confirm("정말로 삭제하시겠습니까?") == true) {
+    try {
     const response = await friendStore.deleteFriend(sessionStorage.getItem("userId"), friend.userId);
     if (response.msg == "success") {
       console.log("성공적으로 친구를 삭제했습니다.");
@@ -128,6 +129,7 @@ const removeFriend = async (friend) => {
     console.log("친구 삭제 중 오류 발생: ", error);
   }
   await updateFriendList(); // 친구 목록 갱신
+  }
 };
 
 // 친구 검색 함수
@@ -212,6 +214,22 @@ const acceptFriendRequest = async (toUser) => {
     }
   } catch (error) {
     console.log('친구 수락 요청 중 오류 발생: ', error);
+  }
+}
+
+const removeFriendRequest = async (requestUser, index) => {
+  if (confirm("정말로 삭제하시겠습니까?")) {
+    try {
+      const response = await friendStore.deleteFriendRequest(requestUser.userId, sessionStorage.getItem("userId"));
+      if (response.msg == "success") {
+        alert("친구 요청을 삭제했습니다.");
+        requestList.value.splice(index, 1);
+      } else {
+        alert("친구 요청 삭제를 수행할 수 없습니다.");
+      }
+    } catch (error) {
+      console.log("친구 요청 삭제 중 오류 발생", error);
+    }
   }
 }
 </script>
