@@ -3,13 +3,16 @@
     <h2 class="font-weight-black">내가 작성한 글</h2>
     <br>
     <v-container class="posts-container" v-if="posts.length > 0">
-      <v-row class="mb-4 d-flex flex-wrap" :key="currentPage">
+      <v-row class="mb-4 d-flex flex-wrap" :key="currentPage" justify="center" align="center">
         <!-- 각 카드를 5개씩 표시 -->
         <v-col v-for="(post, index) in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
           <v-hover v-slot="{ isHovering, props }">
             <v-card class="mx-auto" max-width="350" v-bind="props">
               <!-- <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg" /> -->
-              <v-img :src="photoStore.getPhoto(post.photoUrl)" aspect-ratio="16/9" />
+              <v-img :src="imageRefUrls[index]" 
+              lazy-src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg"
+              aspect-ratio="4/3" class="card-img" 
+              max-height="200px" />
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
@@ -49,6 +52,7 @@ const postStore = usePostStore();
 const photoStore = usePhotoStore();
 
 const posts = ref([])
+const imageRefUrls = ref([])
 
 const selectedPost = ref({});
 const currentPage = ref(1);
@@ -80,6 +84,9 @@ const loadPosts = async () => {
         posts.value = [];
       } else {
         posts.value = toRaw(resp.value);
+        posts.value.forEach((post, idx) => {
+          loadImage(post, idx);
+        })
       }
     } else {
       alert("로그인 먼저 해주세요!");
@@ -91,11 +98,27 @@ const loadPosts = async () => {
 };
 loadPosts();
 
+const loadImage = async (post, idx) => {
+  console.log("post in loadImg function:", post)
+  try {
+    const blobUrl = await photoStore.getPhoto(post.photoUrl);
+    console.log("blob: ", blobUrl)
+    if (blobUrl) {
+      imageRefUrls.value[idx] = blobUrl;
+    } else {
+      alert('blobUrl 없다... in 124')
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 onMounted(() => {
   loadPosts();
 })
 
 onBeforeRouteUpdate(async (to, from, next) => {
+  console.log("onBeforeRouteUpdate");
   await loadPosts().then(() => {
     next(); // 데이터가 로드된 후에 페이지를 이동
   });
@@ -109,6 +132,7 @@ watch(posts, (newPosts, oldPosts) => {
 });
 
 onBeforeRouteLeave(() => {
+  console.log("onBeforeRouteLeave");
   loadPosts();
 })
 
@@ -132,5 +156,9 @@ onBeforeRouteLeave(() => {
 .v-pagination {
   margin-top: 20px;
   text-align: center;
+}
+
+.card-img{
+
 }
 </style>
