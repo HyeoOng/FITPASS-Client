@@ -8,11 +8,9 @@
         <v-col v-for="(post, index) in currentPosts" :key="post.postId" cols="3" md="3" sm="6">
           <v-hover v-slot="{ isHovering, props }">
             <v-card class="mx-auto" max-width="350" v-bind="props">
-              <!-- <v-img src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg" /> -->
               <v-img :src="imageRefUrls[index]" 
               lazy-src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg"
-              aspect-ratio="4/3" class="card-img" 
-              max-height="200px" />
+              aspect-ratio="4/3" class="card-img" max-width="350" />
               <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
@@ -23,7 +21,7 @@
         </v-col>
       </v-row>
       <!-- Pagination -->
-      <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"  @update:modelValue="loadPosts" circle></v-pagination>
+      <v-pagination v-model="currentPage" :length="totalPages" :total-visible="7"  @update:modelValue="handlePageChange" circle></v-pagination>
     </v-container>
     <v-container v-else class="posts-container text-center w-full">
       아직 작성된 글이 없습니다. <br>
@@ -42,17 +40,14 @@
 
 <script setup>
 import { ref, computed, toRaw, onMounted, watch } from 'vue';
-import { useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
+import { onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
 import DetailPostView from './DetailPostView.vue';
 import { usePostStore } from '@/stores/post';
-import { usePhotoStore } from '@/stores/photo';
+import { usePosts } from '@/util/usePosts';
 
-const router = useRouter();
+const { posts, imageRefUrls, totalPages, loadPosts } = usePosts();
+
 const postStore = usePostStore();
-const photoStore = usePhotoStore();
-
-const posts = ref([])
-const imageRefUrls = ref([])
 
 const selectedPost = ref({});
 
@@ -60,8 +55,6 @@ const currentPage = ref(1);
 const postsPerPage = 8;
 
 const showDetail = ref(false);
-
-const totalPages = ref(1);
 
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
@@ -75,77 +68,25 @@ const showDetailPost = (post) => {
   showDetail.value = true;
 }
 
-// 글을 불러오는 함수
-const loadPosts = async () => {
-  console.log("현재 내 페이지: ", currentPage.value);
-  try {
-    const userId = sessionStorage.getItem("userId");
-    if (userId) {
-      const resp = await postStore.getMyPosts(userId, currentPage.value, postsPerPage);
-      if (!resp?.value || !Array.isArray(resp.value.content)) {
-        console.warn("서버에서 예상치 못한 응답을 받았습니다.");
-        posts.value = [];
-      } else {
-        // console.log("화면: ",resp.value);
-        const content = resp.value.content;
-        posts.value = Array.isArray(content) ? content : [content]; // 배열로 변환
-        totalPages.value = resp.value.totalPages;
-        // console.log("totalPages: ", totalPages.value)
-
-        posts.value.forEach((post, idx) => {
-          loadImage(post, idx);
-        })
-      }
-    } else {
-      alert("로그인 먼저 해주세요!");
-      router.push("/login");
-    }
-  } catch (error) {
-    console.error("posts 불러오는 중 에러 만남 : ", error);
-  }
+const handlePageChange = () => {
+  loadPosts(
+    (currentPage, postsPerPage) => postStore.getMyPosts(currentPage, postsPerPage),
+    currentPage.value,
+    postsPerPage
+  );
 };
-// loadPosts();
 
-const loadImage = async (post, idx) => {
-  console.log("post in loadImg function:", post)
-  try {
-    const blobUrl = await photoStore.getPhoto(post.photoUrl);
-    // console.log("blob: ", blobUrl)
-    if (blobUrl) {
-      imageRefUrls.value[idx] = blobUrl;
-    } else {
-      alert('blobUrl 없다... in 124')
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 onMounted(() => {
-  loadPosts();
+  // loadPosts();
+  loadPosts(
+    (currentPage, postsPerPage) => postStore.getMyPosts(currentPage, postsPerPage),
+    currentPage.value,
+    postsPerPage
+  );
 })
 
-// onBeforeRouteUpdate(async (to, from, next) => {
-//   console.log("onBeforeRouteUpdate");
-//   await loadPosts().then(() => {
-//     next(); // 데이터가 로드된 후에 페이지를 이동
-//   });
-// });
 
-// watch(posts, (newPosts, oldPosts) => {
-//   if (newPosts !== oldPosts) {
-//     console.log("posts가 갱신되었습니다", newPosts);
-//     // 갱신된 posts로 필요한 추가 작업을 수행할 수 있습니다.
-//   }
-// });
-
-// onBeforeRouteLeave(() => {
-//   if (formData.value.photoUrl) {
-//     URL.revokeObjectURL(formData.value.photoUrl); // 이전 URL 해제
-//   }
-//   console.log("onBeforeRouteLeave");
-//   loadPosts();
-// })
 
 </script>
 

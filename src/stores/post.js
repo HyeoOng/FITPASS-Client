@@ -16,9 +16,9 @@ export const usePostStore = defineStore('post', () => {
     }).then(() => true).catch(() => false);
   }
 
-  const getMyPosts = async (userId, page, size) => {
+  const getMyPosts = async (page, size) => {
     try{
-      const resp = await axios.get(REST_API_URL+ "/user/"+userId, {
+      const resp = await axios.get(REST_API_URL+ "/user", {
         params: {
           page: page-1,
           size,
@@ -33,5 +33,37 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  return { registPost, getMyPosts }
+  const getAllPosts = async (page, size) => {
+    try{
+      const resp = await axios.get(REST_API_URL, {
+        params: {
+          page: page-1,
+          size
+        }
+      });
+      myPosts.value = resp.data;
+      return myPosts;
+
+    }catch(error){
+      console.error("전체 게시글 로드 중 오류(fetch error): ", error);
+    }
+  }
+
+  const getFriendsPosts = async (page, size) => {
+    try{
+      const resp = await axios.get(REST_API_URL + "/friend", {
+        params: {
+          page: page-1,
+          size
+        }
+      });
+      myPosts.value = resp.data;
+      return myPosts;
+
+    }catch(error){
+      console.error("친구 게시글 로드 중 오류(fetch error): ", error);
+    }
+  }
+
+  return { registPost, getMyPosts, getAllPosts, getFriendsPosts }
 })
