@@ -9,7 +9,6 @@ export const usePostStore = defineStore('post', () => {
   const myPosts = ref([]);
   
   const registPost = async (input) => {
-    // console.log("input: ", input)
     await axios.post(REST_API_URL, input, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,6 @@ export const usePostStore = defineStore('post', () => {
   const getMyPosts = async (userId) => {
     try{
       const resp = await axios.get(REST_API_URL+ "/user/"+userId)
-      // console.log("응답 데이터(내 포스트 불러오기): ",resp.data);
       myPosts.value = resp.data
       return myPosts;
     } catch(error){

@@ -2,18 +2,34 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useUserStore } from './user'
+// import { l } from 'vite/dist/node/types.d-aGj9QkWt'
 
 const REST_API_URL = `http://localhost:8080/api/image`
 export const usePhotoStore = defineStore('photo', () => {
   const user = useUserStore();
+  const photoCache = ref(new Map());
   const getPhoto = async (photoUrl) => {
-    console.log("여기까지는 잘 들어왔슈: ", photoUrl)
-    await axios.post(REST_API_URL, {photoUrl})
-    .then((resp) => {
-      // 사진 가져오기 성공
-      console.log("응답 사진 파일: ", resp.data)
-    })
-    .catch((error) => {
+    // 이미 캐싱된 데이터가 존재하면 반환
+    if(photoCache.value.has(photoUrl)){
+      return photoCache.value.get(photoUrl);
+    }
+    // 캐시 값이 없다면..
+    try{
+      const resp = await axios.post(REST_API_URL, {photoUrl}, {
+        responseType: 'blob'
+      });
+       
+      if(resp.data){
+        // console.log("pinia에서 응답 데이터: ", resp.data)
+        const blobUrl = URL.createObjectURL(resp.data);
+        photoCache.value.set(photoUrl, blobUrl);
+        return blobUrl;
+      } else {
+        console.log("이미지 응답 실패")
+        return null;
+      }
+    }catch(error){
+      console.error("photo fetch 에러: ");
       if(error.response){
         handleErrorResp(error.response.data);
         return
@@ -24,7 +40,8 @@ export const usePhotoStore = defineStore('photo', () => {
         // 요청 설정 중 에러 발생
         console.error('Request error:', error.message);
       }
-    })
+      return null;
+    }
   }
 
   const handleErrorResp = (msg) => {
@@ -33,16 +50,16 @@ export const usePhotoStore = defineStore('photo', () => {
         alert("비정상적인 접근이 시도되었습니다.");
         user.logout();
         break;
-      case "server1":
-        alert("서버 문제임 : 죄송합니다. 잠시 후 다시 시도해주세요.")
+      case "not found":
+        alert("이미지를 찾을 수 없습니다.")
         break;
-      case "server2":
-        alert("서버2 문제임 : 죄송합니다. 잠시 후 다시 시도해주세요.")
+      case "server":
+        alert("서버 문제")
         break;
       default:
-        alert("다른 문제요: 문제가 발생했습니다. 잠시 후 다시 시도해주세요.")
+        alert("다른 문제")
     }
   }
 
-  return { user, getPhoto, handleErrorResp }
+  return { photoCache, user, getPhoto, handleErrorResp }
 })
