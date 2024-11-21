@@ -83,14 +83,14 @@
         >
 
 
-        <v-btn @click="submitForm" color="primary">회원가입</v-btn>
+        <v-btn @click="submitForm" color="primary" :disabled="!isFormValid">회원가입</v-btn>
       </v-form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import defaultProfileImg from '@/assets/profile.png';
@@ -98,6 +98,12 @@ import defaultProfileImg from '@/assets/profile.png';
 const router = useRouter();
 const userStore = useUserStore();
 
+const isFormValid = computed(() => {
+  return formData.value.name &&
+          formData.value.email &&
+          formData.value.password &&
+          formData.value.nn;
+})
 
 const formData = ref({
   name: "",
@@ -116,6 +122,7 @@ const checkEmailDuplication = async (email) => {
 
     if (response.msg == "fail2") {
       alert("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
+      formData.value.email = ''; // 중복된 이메일을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("이메일은 공백일 수 없습니다.")
     } 
@@ -135,6 +142,7 @@ const checkNicknameDuplication = async (nn) => {
 
     if (response.msg == "fail2") {
       alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      formData.value.nn = ''; // 중복된 닉네임을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("닉네임은 공백일 수 없습니다.")
     } 
