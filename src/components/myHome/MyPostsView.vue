@@ -96,7 +96,7 @@ const loadPosts = async () => {
     console.error("posts 불러오는 중 에러 만남 : ", error);
   }
 };
-loadPosts();
+// loadPosts();
 
 const loadImage = async (post, idx) => {
   console.log("post in loadImg function:", post)
@@ -124,17 +124,20 @@ onBeforeRouteUpdate(async (to, from, next) => {
   });
 });
 
-watch(posts, (newPosts, oldPosts) => {
-  if (newPosts !== oldPosts) {
-    console.log("posts가 갱신되었습니다", newPosts);
-    // 갱신된 posts로 필요한 추가 작업을 수행할 수 있습니다.
-  }
-});
+// watch(posts, (newPosts, oldPosts) => {
+//   if (newPosts !== oldPosts) {
+//     console.log("posts가 갱신되었습니다", newPosts);
+//     // 갱신된 posts로 필요한 추가 작업을 수행할 수 있습니다.
+//   }
+// });
 
-onBeforeRouteLeave(() => {
-  console.log("onBeforeRouteLeave");
-  loadPosts();
-})
+// onBeforeRouteLeave(() => {
+//   if (formData.value.photoUrl) {
+//     URL.revokeObjectURL(formData.value.photoUrl); // 이전 URL 해제
+//   }
+//   console.log("onBeforeRouteLeave");
+//   loadPosts();
+// })
 
 </script>
 
