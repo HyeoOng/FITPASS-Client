@@ -35,7 +35,7 @@ export function usePosts() {
   }
   // 게시글 이미지 로드
   const loadImage = async (post, idx) => {
-    console.log("post in loadImg function:", post)
+    //console.log("post in loadImg function:", post)
     try {
       const blobUrl = await photoStore.getPhoto(post.photoUrl);
       if (blobUrl) {

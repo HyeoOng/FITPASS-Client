@@ -18,23 +18,25 @@
     <v-row justify="end" class="mt-0">
       <v-col cols="6" class="pl-0 pr-3 post-img">
         <v-img src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"/>
+         <!-- <v-img :src="photoUrl" /> -->
         <div class="place-info">
           <v-icon icon="mdi-map-marker" class="mr-5"></v-icon>
-          {{ post.placeId }} <br>
+          {{ postDetails.placeId }} <br>
           <div class="mt-2">
             <v-icon icon="mdi-dumbbell" class="mr-5"></v-icon>
-            <span class="mr-10 ml-1">{{ post.sportCode }}</span>
-            <span>{{ post.exerciseDuration }}분</span>
+            <span class="mr-10 ml-1">{{ postDetails.sportCode }}</span>
+            <span>{{ postDetails.exerciseDuration }}분</span>
           </div>
         </div>
       </v-col>
-      <v-col cols="6" class="pl-10">
-        <h2 class="font-weight-black">{{ post.title }}</h2>
+      <v-col cols="6" class="pl-10 content-div">
+        <h2 class="font-weight-black">{{ postDetails.title }}</h2>
         <div class="post-calender">
           <v-icon icon="mdi-calendar"></v-icon>
+          <span class="ml-3">{{ postDetails.createdAt }}분</span>
         </div>
         <br>
-        <p class="text-subtitle-1">{{ post.content }}</p>
+        <p class="text-subtitle-1">{{ postDetails.content }}</p>
         <br>
         <hr>
         <br>
@@ -69,11 +71,15 @@
 import { defineProps, watch, ref } from 'vue';
 
 const props = defineProps({
-  post: {
-    type: Object,
-    default: () => ({}), // 빈 객체
-  },
+  // post: {
+  //   type: Object,
+  //   default: () => ({}), // 빈 객체
+  // },
+  // photoUrl: String,
+  postDetails : Object,
 })
+
+// console.log("전달받은 URL: ",postDetails.value)
 
 const comments = ref([
   {commentId: 1, comment: "안녕", userId: 2, postId: 2},
@@ -101,10 +107,7 @@ const watchPost = watch(
 <style scoped>
 .main-div{
   padding: 30px;
-  overflow-y: auto; /* 세로 스크롤 추가 */
-    /* 스크롤바 숨기기 */
-    scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  
 }
 
 .comment-div::-webkit-scrollbar {
@@ -112,14 +115,9 @@ const watchPost = watch(
 }
 
 .post-img{
-  height: 500px;
-  border-radius: 5px;
-  /* position: sticky; */
-  position: fixed;
-  top: 23%;
-  left: 1%;
-  width: 50%;
-  height: 55%;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
 }
 
 .img-div{
@@ -136,6 +134,13 @@ const watchPost = watch(
 
 .comment{
   width: 90%;
+}
+
+.content-div{
+  overflow-y: auto; /* 세로 스크롤 추가 */
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
 .comment-detail{

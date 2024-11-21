@@ -11,10 +11,10 @@
               <v-img :src="imageRefUrls[index]" 
               lazy-src="https://cdn.vuetifyjs.com/images/cards/forest-art.jpg"
               aspect-ratio="4/3" class="card-img" max-width="350" />
-              <v-overlay :model-value="!!isHovering" class="align-center justify-center text-white pa-5" contained>
+              <v-overlay :model-value="isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
-                <v-btn variant="text" @click="showDetailPost(post)">Show Details</v-btn>
+                <v-btn variant="text" @click="showDetailPost(post, index)">Show Details</v-btn>
               </v-overlay>
             </v-card>
           </v-hover>
@@ -32,13 +32,15 @@
       max-width="80%"
       max-height="75%"
     >
-      <DetailPostView v-if="showDetail && selectedPost" :post="selectedPost" />
+      <DetailPostView v-if="showDetail && selectedPost" :post-details="postDetails" />
     </v-dialog>
 
   </div>
 </template>
 
 <script setup>
+//:photoUrl="selectedPostPhoto"
+
 import { ref, computed, toRaw, onMounted, watch } from 'vue';
 import { onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
 import DetailPostView from './DetailPostView.vue';
@@ -50,6 +52,7 @@ const { posts, imageRefUrls, totalPages, loadPosts } = usePosts();
 const postStore = usePostStore();
 
 const selectedPost = ref({});
+const selectedPostPhoto = ref('');
 
 const currentPage = ref(1);
 const postsPerPage = 8;
@@ -63,9 +66,18 @@ const currentPosts = computed(() => {
   return Array.isArray(posts.value) ? posts.value.slice(0, postsPerPage) : [];
 });
 
-const showDetailPost = (post) => {
+const postDetails = ref({});
+
+const showDetailPost = (post, idx) => {
   selectedPost.value = post;
+  postDetails = {
+    post,
+    imageUrl: imageRefUrls.value[idx]
+  };
+  // console.log("전달할 URL: ", imageRefUrls.value[idx])
+  // selectedPostPhoto.value = imageRefUrls.value[idx];
   showDetail.value = true;
+  selectedPostPhoto.value = postDetails.imageUrl;
 }
 
 const handlePageChange = () => {
