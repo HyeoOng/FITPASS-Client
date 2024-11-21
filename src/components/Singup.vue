@@ -59,7 +59,34 @@
           <v-btn @click="checkEmailDuplication(formData.email)" color="primary"
             >중복<br>확인</v-btn
           >
+          <v-btn 
+          :disabled="!formData.email || isEmailSending" 
+          @click="sendVerificationCode(formData.email)"
+          color="primary"
+          >
+            인증 코드 <br> 전송 
+          </v-btn>
         </div>
+
+        
+        <div class="check">
+            <v-text-field
+            v-model="formData.verificationCode"
+            label="인증 코드"
+            :rules="[(v) => !!v || '인증 코드를 입력해 주세요']"
+            variant="outlined"
+          >
+          </v-text-field>
+
+          <v-btn 
+            :disabled="!formData.verificationCode || isVerificationChecking" 
+            @click="verifyCode(formData.email, formData.verificationCode)"
+            color="success"
+          >
+            인증 확인
+          </v-btn>
+        </div>
+        
 
         <v-text-field
           label="비밀번호"
@@ -96,10 +123,12 @@
 import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useEmailStore } from "@/stores/email";
 import defaultProfileImg from '@/assets/profile.png';
 
 const router = useRouter();
 const userStore = useUserStore();
+const emailStore = useEmailStore();
 
 const isFormValid = computed(() => {
   return formData.value.name &&
@@ -113,10 +142,38 @@ const formData = ref({
   email: "",
   password: "",
   nn: "",
+  verificationCode: "",
   profile: null,
 
 });
 
+const sendVerificationCode = async (email) => {
+   try {
+    const response = await emailStore.sendVerificationCode(email);
+    if (response.msg == "success") {
+      alert("인증 코드가 이메일로 발송되었습니다.");
+    } else {
+      alert("이메일 발송 실패: " + email);
+    }
+   } catch (error) {
+    console.error(error);
+    alert("이메일 발송 중 문제가 발생했습니다.");
+   }
+}
+
+const verifyCode = async (email, code) => {
+  try {
+    const response = await emailStore.verifyCode(email, code);
+    if (response.msg == "success") {
+      alert("코드 인증 성공");
+    } else {
+      alert("인증 코드 불일치");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("코드 검증 중 문제가 발생했습니다");
+  }  
+}
 
 const checkEmailDuplication = async (email) => {
   try {
