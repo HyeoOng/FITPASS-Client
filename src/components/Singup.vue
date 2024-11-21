@@ -47,18 +47,19 @@
           variant="outlined"
         ></v-text-field>
 
-        <v-text-field
+        <div class="check">
+          <v-text-field
           label="이메일"
           v-model="formData.email"
           :rules="[
             (v) => !!v || '이메일을 입력해 주세요',
             (v) => /.+@.+\..+/.test(v) || '유효한 이메일을 입력해 주세요',
           ]"
-          variant="outlined"
-        ></v-text-field>
-        <v-btn @click="checkEmailDuplication(formData.email)" color="primary"
-          >중복<br>확인</v-btn
-        >
+          variant="outlined"></v-text-field>
+          <v-btn @click="checkEmailDuplication(formData.email)" color="primary"
+            >중복<br>확인</v-btn
+          >
+        </div>
 
         <v-text-field
           label="비밀번호"
@@ -72,15 +73,17 @@
           variant="outlined"
         ></v-text-field>
 
-        <v-text-field
+        <div class="check">
+          <v-text-field
           label="닉네임"
           v-model="formData.nn"
           :rules="[(v) => !!v || '닉네임을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
         <v-btn @click="checkNicknameDuplication(formData.nn)" color="primary"
-          >닉네임 중복 확인</v-btn
+          >중복<br>확인</v-btn
         >
+        </div>
 
 
         <v-btn @click="submitForm" color="primary" :disabled="!isFormValid">회원가입</v-btn>
@@ -188,6 +191,7 @@ function submitForm() {
 .signup-img {
   width: 100%;
   height: 10em;
+  text-align: center;
   justify-items: center;
   align-content: center;
   position: relative;
@@ -206,4 +210,26 @@ function submitForm() {
   opacity: 0.15; /* 배경 이미지에만 적용되는 투명도 */
   z-index: -1;
 }
+
+.check {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.check .v-text-field {
+  width: 90%;
+  height: 56px; /* Set fixed height */
+}
+
+.check .v-btn {
+  width: 10%;
+  margin-left: 10px;
+  height: 56px; /* Set same height as the input field */
+  display: flex;
+  align-items: center; /* Center the text vertically */
+  justify-content: center; /* Center the text horizontally */
+}
+
 </style>
