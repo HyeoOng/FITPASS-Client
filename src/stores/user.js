@@ -89,9 +89,33 @@ export const useUserStore = defineStore('user', () => {
       return searchFriendsList;
     } catch (error) {
       throw error;
-    }
-    
+    }    
   }
 
-  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList };
+  const emailCheck = async (email) => {
+      try {
+        const response = await axios.post(`${REST_API_URL}/emailCheck`, {
+          email
+        });
+        return response.data;
+
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    }
+
+  const nnCheck = async (nn) => {
+    try {
+      const response = await axios.post(`${REST_API_URL}/nnCheck`, {
+        nn
+      })
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck };
 });

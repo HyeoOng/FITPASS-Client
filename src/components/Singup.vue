@@ -56,7 +56,7 @@
           ]"
           variant="outlined"
         ></v-text-field>
-        <v-btn @click="checkEmailDuplication" color="primary"
+        <v-btn @click="checkEmailDuplication(formData.email)" color="primary"
           >중복<br>확인</v-btn
         >
 
@@ -78,7 +78,7 @@
           :rules="[(v) => !!v || '닉네임을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
-        <v-btn @click="checkNicknameDuplication" color="primary"
+        <v-btn @click="checkNicknameDuplication(formData.nn)" color="primary"
           >닉네임 중복 확인</v-btn
         >
 
@@ -109,12 +109,41 @@ const formData = ref({
 });
 
 
-function checkEmailDuplication() {
-  alert("이메일 중복 확인");
+const checkEmailDuplication = async (email) => {
+  try {
+    console.log("email, ", email);
+    const response = await userStore.emailCheck(email);
+
+    if (response.msg == "fail2") {
+      alert("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
+    } else if (response.msg == "fail1") {
+      alert("이메일은 공백일 수 없습니다.")
+    } 
+    else {
+      alert("등록 가능한 이메일입니다.");
+    }
+  } catch (error) {
+    console.error("이메일 중복 체크 중 오류 발생: ", error);
+
+  }
 }
 
-function checkNicknameDuplication() {
-  alert("닉네임 중복 확인");
+const checkNicknameDuplication = async (nn) => {
+  try {
+    console.log("nn, ", nn);
+    const response = await userStore.nnCheck(nn);
+
+    if (response.msg == "fail2") {
+      alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
+    } else if (response.msg == "fail1") {
+      alert("닉네임은 공백일 수 없습니다.")
+    } 
+    else {
+      alert("등록 가능한 닉네임입니다.");
+    }
+  } catch (error) {
+    console.error("닉네임 중복 체크 중 오류 발생: ", error);
+  }
 }
 
 function submitForm() {
