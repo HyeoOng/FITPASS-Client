@@ -11,21 +11,23 @@
 
         <!-- 프로필 사진 미리보기 -->
         <div class="profile-img-container">
-          <img
-            :src="formData.profile ? formData.profile : defaultProfileImg"
-            alt="프로필 사진 미리보기"
-            class="profileImg"
-          />
+          <v-avatar class="profileImg" size="300">
+            <v-img
+              :src="profilePreview ? profilePreview : defaultProfileImg"
+              alt="프로필 사진 미리보기"
+            />
+          </v-avatar>
         </div>
 
         <v-file-input
-          v-model="formData.profile"
+          v-model="profile"
           :show-size="1000"
           label="프로필 사진 등록"
           placeholder="프로필 사진을 등록해 보세요!"
           prepend-icon="mdi-paperclip"
           accept="image/*"
           variant="outlined"
+          @change="onFileChange"
         >
           <template v-slot:selection="{ fileNames }">
             <v-chip
@@ -42,7 +44,7 @@
 
         <v-text-field
           label="이름"
-          v-model="formData.name"
+          v-model="signupUser.name"
           :rules="[(v) => !!v || '이름을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
@@ -50,18 +52,18 @@
         <div class="check">
           <v-text-field
           label="이메일"
-          v-model="formData.email"
+          v-model="signupUser.email"
           :rules="[
             (v) => !!v || '이메일을 입력해 주세요',
             (v) => /.+@.+\..+/.test(v) || '유효한 이메일을 입력해 주세요',
           ]"
           variant="outlined"></v-text-field>
-          <v-btn @click="checkEmailDuplication(formData.email)" color="primary"
+          <v-btn @click="checkEmailDuplication(signupUser.email)" color="primary"
             >중복<br>확인</v-btn
           >
           <v-btn 
-          :disabled="!formData.email || isEmailSending" 
-          @click="sendVerificationCode(formData.email)"
+          :disabled="!signupUser.email || isEmailSending" 
+          @click="sendVerificationCode(signupUser.email)"
           color="primary"
           >
             인증 코드 <br> 전송 
@@ -71,7 +73,7 @@
         
         <div class="check">
             <v-text-field
-            v-model="formData.verificationCode"
+            v-model="signupUser.verificationCode"
             label="인증 코드"
             :rules="[(v) => !!v || '인증 코드를 입력해 주세요']"
             variant="outlined"
@@ -79,8 +81,8 @@
           </v-text-field>
 
           <v-btn 
-            :disabled="!formData.verificationCode || isVerificationChecking" 
-            @click="verifyCode(formData.email, formData.verificationCode)"
+            :disabled="!signupUser.verificationCode || isVerificationChecking" 
+            @click="verifyCode(signupUser.email, signupUser.verificationCode)"
             color="success"
           >
             인증 확인
@@ -91,10 +93,11 @@
         <v-text-field
           label="비밀번호"
           type="password"
-          v-model="formData.password"
+          v-model="signupUser.password"
           :rules="[
             (v) => !!v || '비밀번호를 입력해 주세요',
             (v) => v.length >= 6 || '6자 이상이어야 합니다',
+            rules.password
           ]"
           hint="8자 이상, 대/소문자, 숫자, 특수기호를 모두 포함하여 작성해주세요."
           variant="outlined"
@@ -103,11 +106,11 @@
         <div class="check">
           <v-text-field
           label="닉네임"
-          v-model="formData.nn"
+          v-model="signupUser.nn"
           :rules="[(v) => !!v || '닉네임을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
-        <v-btn @click="checkNicknameDuplication(formData.nn)" color="primary"
+        <v-btn @click="checkNicknameDuplication(signupUser.nn)" color="primary"
           >중복<br>확인</v-btn
         >
         </div>
@@ -124,28 +127,33 @@ import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useEmailStore } from "@/stores/email";
+import { usePhotoStore } from "@/stores/photo";
+
 import defaultProfileImg from '@/assets/profile.png';
 
 const router = useRouter();
 const userStore = useUserStore();
 const emailStore = useEmailStore();
+const photoStore = usePhotoStore();
 
 const isFormValid = computed(() => {
-  return formData.value.name &&
-          formData.value.email &&
-          formData.value.password &&
-          formData.value.nn;
+  return signupUser.value.name &&
+          signupUser.value.email &&
+          signupUser.value.password &&
+          signupUser.value.nn;
 })
 
-const formData = ref({
+const signupUser = ref({
   name: "",
   email: "",
   password: "",
   nn: "",
   verificationCode: "",
-  profile: null,
-
 });
+
+const profile = ref(''); // 서버 전송
+
+const profilePreview = ref(""); // 프로필 사진 미리보기
 
 const sendVerificationCode = async (email) => {
    try {
@@ -182,7 +190,7 @@ const checkEmailDuplication = async (email) => {
 
     if (response.msg == "fail2") {
       alert("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
-      formData.value.email = ''; // 중복된 이메일을 입력 칸에서 지우기
+      signupUser.value.email = ''; // 중복된 이메일을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("이메일은 공백일 수 없습니다.")
     } 
@@ -202,7 +210,7 @@ const checkNicknameDuplication = async (nn) => {
 
     if (response.msg == "fail2") {
       alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
-      formData.value.nn = ''; // 중복된 닉네임을 입력 칸에서 지우기
+      signupUser.value.nn = ''; // 중복된 닉네임을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("닉네임은 공백일 수 없습니다.")
     } 
@@ -215,8 +223,45 @@ const checkNicknameDuplication = async (nn) => {
 }
 
 function submitForm() {
-  alert("회원가입 제출", formData.value);
-  userStore.signup(formData.value);
+  alert("회원가입 제출", signupUser.value);
+  userStore.signup(signupUser.value, profile.value);
+
+}
+
+const rules = {
+  password: value => {
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?:]).{8,}$/;
+    const forbiddenCharsPattern = /[<>\"/\\{}]/; // 금지된 특수문자
+    if (forbiddenCharsPattern.test(value)) {
+      return '금지된 특수문자 (< > " / \\ { } ) 를 포함할 수 없습니다.';
+    }
+    return passwordPattern.test(value) || '8자 이상, 대/소문자, 숫자, 특수기호를 모두 포함하여 작성해주세요.';
+  }
+}
+
+// 사진 미리보기를 위한 함수
+const onFileChange = (event) => {
+  const files = event.target?.files || [];
+  if (files.length === 0) {
+    alert('사진 파일을 선택해주세요.')
+    console.error("파일이 선택되지 않았습니다.");
+    return;
+  }
+  const selectedFile = files[0]; // 첫 번째 파일 가져오기
+  // 기존 미리보기 URL 해제
+  if (profilePreview.value) {
+    URL.revokeObjectURL(profilePreview.value);
+  }
+  // 파일이 이미지인 경우에만 처리
+  if (selectedFile && selectedFile.type.startsWith('image/')) {
+    profile.value = selectedFile;  // 사진 파일 저장
+    profilePreview.value = URL.createObjectURL(selectedFile);  // 미리보기 URL 생성
+  } else {
+    alert('이미지 파일만 업로드 가능합니다.');
+    console.error("유효하지 않은 파일:", file);
+    profile.value = null;
+    profilePreview.value = null;
+  }
 }
 </script>
 
@@ -230,7 +275,8 @@ function submitForm() {
 }
 
 .profileImg{
-  width: 25vw;
+  /* width: 25vw;
+  height: 50vh; */
   margin-bottom: 10px;
 }
 

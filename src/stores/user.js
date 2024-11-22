@@ -3,8 +3,6 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import router from '@/router';
 
-axios.defaults.withCredentials = true; // 필요 시 유지
-
 const REST_API_URL = `http://localhost:8080/api/users`;
 
 export const useUserStore = defineStore('user', () => {
@@ -23,9 +21,20 @@ export const useUserStore = defineStore('user', () => {
     sessionStorage.removeItem('nickname');
   }
 
-  const signup = async function (user) {
+  const signup = async function (user, profile) {
+    const formData = new FormData();
+    formData.add("user", new Blob([JSON.stringify(user)], {
+      type: "application/json"
+    }));
+    formData.append("profile", profile);
+
+
     try {
-      const response = await axios.post(`${REST_API_URL}/signup`, user);
+      const response = await axios.post(`${REST_API_URL}/signup`,formData, {
+        headers: {
+          "Content-Type" : "multipart/form-data",
+        }
+      });
       const msg = response.data.msg;
 
       if (msg === "success") {
