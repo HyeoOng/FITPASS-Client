@@ -1,6 +1,12 @@
 <template>
   <div class="close-modal mt-0 pt-0">
-    <h1 class="text-white font-weight-black" @click="close" style="cursor: pointer;">X</h1>
+    <h1
+      class="text-white font-weight-black"
+      @click="close"
+      style="cursor: pointer"
+    >
+      X
+    </h1>
   </div>
   <!-- <div class="card-container"> -->
   <v-card class="main-div" rounded="lg" max-height="75%">
@@ -19,7 +25,7 @@
         </v-list>
       </v-menu>
     </v-row>
-    <v-row justify="end" class=" ml-1 mt-0 mb-3">
+    <v-row justify="end" class="ml-1 mt-0 mb-3">
       <v-col cols="6" class="pl-3 left-col">
         <div class="left-div">
           <v-img
@@ -29,7 +35,7 @@
             contain
             width="100%"
             height="70%"
-            class="custom-img "
+            class="custom-img"
           />
           <div class="place-info">
             <v-icon icon="mdi-map-marker" class="mr-5"></v-icon>
@@ -69,7 +75,28 @@
                 ></v-avatar>
                 <p>{{ c.comment }}</p>
               </div>
-              <v-btn variant="plain">삭제</v-btn>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon="mdi-dots-vertical"
+                    variant="text"
+                    v-bind="props"
+                  ></v-btn>
+                </template>
+                <v-list v-if="userStore.userId === c.userId">
+                  <v-list-item>
+                    <v-list-item-title>수정</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title>삭제</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+                <v-list v-else>
+                  <v-list-item>
+                    <v-list-item-title>신고</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </v-row>
           </div>
         </div>
@@ -85,8 +112,15 @@
               rounded="lg"
               label="댓글 입력"
               density="compact"
+              @keydown.enter="registCmt"
             ></v-text-field>
-            <v-btn variant="plain" color="primary" class="pt-1" @click="registCmt">입력</v-btn>
+            <v-btn
+              variant="plain"
+              color="primary"
+              class="pt-1"
+              @click="registCmt"
+              >입력</v-btn
+            >
           </v-row>
         </div>
       </v-col>
@@ -96,11 +130,20 @@
 </template>
 
 <script setup>
-import { defineProps, watch, ref, onMounted, computed, defineEmits, toRaw } from "vue";
+import {
+  defineProps,
+  watch,
+  ref,
+  onMounted,
+  computed,
+  defineEmits,
+  toRaw,
+} from "vue";
 import { usePosts } from "@/util/usePosts";
 import { useSportStore } from "@/stores/sport";
 import { usePlaceStore } from "@/stores/place";
 import { useCommentStore } from "@/stores/comment";
+import { useUserStore } from "@/stores/user";
 
 const emit = defineEmits(["close"]);
 
@@ -109,6 +152,7 @@ const { loadImageOne } = usePosts();
 const sportStore = useSportStore();
 const placeStore = usePlaceStore();
 const cmtStore = useCommentStore();
+const userStore = useUserStore();
 
 const props = defineProps({
   post: {
@@ -119,40 +163,36 @@ const props = defineProps({
 
 const placeName = ref("");
 const photoUrl = ref("");
+const comments = ref([]);
 const comment = ref({
   userId: 0,
   postId: props.post.postId,
   comment: "",
-})
+});
 
 const sportName = computed(() => {
-  const sport = sportStore.sports.find((s) => s.sportCode === props.post.sportCode);
+  const sport = sportStore.sports.find(
+    (s) => s.sportCode === props.post.sportCode
+  );
   return sport ? sport.sportName : "알 수 없음";
 });
 
-
-const comments = ref([
-  { commentId: 1, comment: "안녕", userId: 2, postId: 2 },
-  { commentId: 2, comment: "반가워요", userId: 2, postId: 2 },
-  { commentId: 3, comment: "잘 보고갑니다.", userId: 2, postId: 2 },
-  { commentId: 4, comment: "저건 좀 아니지 않아..?", userId: 2, postId: 2 },
-  { commentId: 5, comment: "저건 좀 아니지 않아..?", userId: 2, postId: 2 },
-  { commentId: 6, comment: "저건 좀 아니지 않아..?", userId: 2, postId: 2 },
-  { commentId: 7, comment: "저건 좀 아니지 않아..?", userId: 2, postId: 2 },
-  { commentId: 8, comment: "저건 좀 아니지 않아..?", userId: 2, postId: 2 },
-]);
-
-const registCmt = async () =>{
+const registCmt = async () => {
   const resp = await cmtStore.registComment(comment.value);
-  console.log("댓글 등록 결과: ", resp)
-  if(resp){
+  console.log("댓글 등록 결과: ", resp);
+  if (resp) {
     // 댓글 목록 재로드
+    loadComments(props.post.postId)
     comment.value.comment = "";
-    alert("성공")
-  }else{
+    alert("성공");
+  } else {
     alert(`댓글 등록에 실패하였습니다.
-    잠시 후 다시 시도해주세요.`)
+    잠시 후 다시 시도해주세요.`);
   }
+};
+
+const loadComments = async (postId) => {
+  comments.value = [...(await cmtStore.getComments(postId))];
 }
 
 // post 변경 감지
@@ -164,9 +204,11 @@ const watchPost = watch(
     placeName.value = await placeStore.getPlaceName(newValue.placeId);
 
     // 댓글 불러오기..
-    comments.value = toRaw(await cmtStore.getComments(newValue.postId));
-    console.log("댓글: ",comments.value)
-
+    loadComments(newValue.postId);
+    // comments.value = toRaw(comments.value)
+    console.log("댓글: ", comments.value);
+    console.log("현재 로그인된 사용자 ID: ", userStore.userId)
+    
   },
   { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
 );
@@ -174,7 +216,7 @@ const watchPost = watch(
 // 날짜 형식 변환
 const formattedDate = computed(() => {
   if (!props.post || !props.post.createdAt) return ""; // post나 createdAt이 없으면 빈 문자열 반환
-  
+
   // UTC 시간 생성
   const utcDate = new Date(props.post.createdAt);
 
@@ -194,26 +236,24 @@ const formattedDate = computed(() => {
 
 const close = () => {
   emit("close");
-}
-
+};
 </script>
 
 <style scoped>
-.close-modal{
+.close-modal {
   justify-items: end;
 }
 
-.left-col{
+.left-col {
   align-content: center;
 }
 
 .main-div {
   padding: 30px;
-  overflow: hidden;  
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-
 
 .main-div::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
@@ -226,13 +266,12 @@ const close = () => {
   /* justify-content: center; */
   width: 75%; /* 부모 크기에 맞춤 */
   height: 85%; /* 부모 크기에 맞춤 */
-
 }
 
 .custom-img {
-  height: 70%; 
-  width: auto; 
-  object-fit: contain; 
+  height: 70%;
+  width: auto;
+  object-fit: contain;
 }
 
 .img-div {
@@ -246,7 +285,7 @@ const close = () => {
 
 .comment-div {
   overflow-y: auto; /* 세로 스크롤 추가 */
-  /* max-height: 300px; */
+  max-height: 300px;
   padding: 1%;
   margin-top: 1%;
 }

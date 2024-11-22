@@ -2,12 +2,17 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { useUserStore } from './user'
-// import { l } from 'vite/dist/node/types.d-aGj9QkWt'
 
 const REST_API_URL = `http://localhost:8080/api/image`
 export const usePhotoStore = defineStore('photo', () => {
+
   const user = useUserStore();
+
   const photoCache = ref(new Map());
+  const profileCache = ref(new Map());
+
+  const profileUrl = ref('');
+
   const getPhoto = async (photoUrl) => {
     // 이미 캐싱된 데이터가 존재하면 반환
     if(photoCache.value.has(photoUrl)){
@@ -42,6 +47,10 @@ export const usePhotoStore = defineStore('photo', () => {
       }
       return null;
     }
+  }
+
+  const loadProfileImage = (userId) => {
+    // if
   }
 
   const handleErrorResp = (msg) => {

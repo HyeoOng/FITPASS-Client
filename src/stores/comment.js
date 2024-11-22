@@ -16,7 +16,7 @@ export const useCommentStore = defineStore('comment', () => {
     })
     console.log("resp: ",resp.data);
     comments.value = resp.data
-    return comments
+    return resp.data
   } catch(error){
     console.error(postId, " 불러오는 중 error: ,", error)
   }

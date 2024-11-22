@@ -34,7 +34,7 @@
       max-width="80%"
       max-height="75%"
     >
-      <DetailPostView v-if="selectedPost" :post="selectedPost" />
+      <DetailPostView v-if="showDetail && selectedPost" :post="selectedPost" @close="closeModal" />
     </v-dialog>
 
   </div>
@@ -92,6 +92,10 @@ onMounted(() => {
     postsPerPage
   );
 })
+
+const closeModal = () =>{
+  showDetail.value = false;
+}
 </script>
 
 <style scoped>

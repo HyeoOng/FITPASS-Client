@@ -10,6 +10,7 @@ const REST_API_URL = `http://localhost:8080/api/users`;
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(sessionStorage.getItem('userId') !== null);
   const userNn = ref(sessionStorage.getItem("nickname") || "USER");
+  const userId = ref(sessionStorage.getItem("userId"));
   const searchFriendsList = ref([])
 
   const setNickname = (nn) => {
@@ -45,15 +46,36 @@ export const useUserStore = defineStore('user', () => {
       isLogined.value = true;
       console.log("isLogined:", isLogined.value);
       console.log("로그인 정보 : ", response)
+      console.log("로그인 실패 성공 여부: ", response.status)
 
-      sessionStorage.setItem("userId", response.data.userId);
       setNickname(response.data.nickname);
-      // sessionStorage.setItem("nickname", response.data.nickname);
+      userId.value = response.data.userId;
+      sessionStorage.setItem("userId", userId.value)
 
       router.push("/");
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       alert("로그인 실패: " + (error.response?.data?.message || "알 수 없는 오류"));
+    }
+  };
+
+  const getCurrentUser = async () => {
+    try {
+      const response = await axios.get(REST_API_URL + '/curr');
+      if (response.data != null) {
+        console.log(response)
+        const { user, login } = response.data;
+        if(login){
+          isLogined.value = true;
+          setNickname(user.nn);
+          userId.value = user.userId;
+        }else{
+          sessionStorage.clear();
+          router.push('/');
+        }
+      }
+    } catch (error) {
+        console.error('사용자 정보 로드 실패:', error);
     }
   };
 
@@ -70,6 +92,7 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
+  // 프로필 수정 시 사용
   const getUserByUserId = async function (userId) {
     try {
       const response = await axios.get(`${REST_API_URL}/${userId}`);
@@ -80,6 +103,7 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
+    // 커뮤니티 페이지에서 친구 검색 시 사용
   const getUsersByNn = async function (nn) {
     try {
       const response = await axios.get(`${REST_API_URL}/search?nn=${nn}`);
@@ -117,5 +141,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck };
+  return { userId, signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, getCurrentUser };
 });

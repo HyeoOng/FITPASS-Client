@@ -179,6 +179,7 @@ const submitForm = () => {
 
   const successFlag = postStore.registPost(formData);
   if(successFlag){
+    alert("글이 등록되었습니다!")
     router.push("/");
   }else{
     alert(`글 등록에 실패하였습니다. <br>잠시 후 다시 시도해주세요.`)
