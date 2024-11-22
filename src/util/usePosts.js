@@ -23,7 +23,7 @@ export function usePosts() {
 
         // 각 포스트에 대해 이미지 로드
         posts.value.forEach((post, idx) => {
-          loadImage(post, idx);
+          loadPostsImage(post, idx);
         });
       } else {
         console.warn("서버에서 예상치 못한 응답을 받았습니다.");
@@ -34,7 +34,7 @@ export function usePosts() {
     }
   }
   // 게시글 이미지 로드
-  const loadImage = async (post, idx) => {
+  const loadPostsImage = async (post, idx) => {
     //console.log("post in loadImg function:", post)
     try {
       const blobUrl = await photoStore.getPhoto(post.photoUrl);
@@ -48,6 +48,20 @@ export function usePosts() {
     }
   }
 
+  const loadImageOne = async (photoUrl) => {
+    try{
+      const blobUrl = await photoStore.getPhoto(photoUrl);
+      if(blobUrl){
+        // console.log("blobUrl: ", blobUrl);
+        return blobUrl;
+      }else{
+        alert("이미지가 존재하지 않습니다..")
+      }
+    }catch (error) {
+      console.error(error);
+    }
+  }
 
-  return {posts, imageRefUrls, totalPages, loadPosts}
+
+  return {posts, imageRefUrls, totalPages, loadPosts, loadImageOne}
 }

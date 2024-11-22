@@ -24,7 +24,7 @@ export const usePostStore = defineStore('post', () => {
           size,
         }
       })
-      // console.log("pagenation: ",resp.data);
+      console.log("pagenation: ",resp.data);
       myPosts.value = resp.data
       return myPosts;
     } catch(error){

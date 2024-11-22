@@ -14,7 +14,7 @@
               <v-overlay :model-value="isHovering" class="align-center justify-center text-white pa-5" contained>
                 <h3>{{ post.title.length > 10 ? post.title.slice(0, 10) + '...' : post.title }}</h3>
                 <br>
-                <v-btn variant="text" @click="showDetailPost(post, index)">Show Details</v-btn>
+                <v-btn variant="text" @click="showDetailPost(post)">Show Details</v-btn>
               </v-overlay>
             </v-card>
           </v-hover>
@@ -32,7 +32,7 @@
       max-width="80%"
       max-height="75%"
     >
-      <DetailPostView v-if="showDetail && selectedPost" :post-details="postDetails" />
+      <DetailPostView v-if="showDetail && selectedPost" :post="selectedPost" @close="closeModal" />
     </v-dialog>
 
   </div>
@@ -52,7 +52,6 @@ const { posts, imageRefUrls, totalPages, loadPosts } = usePosts();
 const postStore = usePostStore();
 
 const selectedPost = ref({});
-const selectedPostPhoto = ref('');
 
 const currentPage = ref(1);
 const postsPerPage = 8;
@@ -61,23 +60,12 @@ const showDetail = ref(false);
 
 // 현재 페이지에 해당하는 글들만 가져오기
 const currentPosts = computed(() => {
-  // const start = (currentPage.value - 1) * postsPerPage;
-  // const end = start + postsPerPage;
   return Array.isArray(posts.value) ? posts.value.slice(0, postsPerPage) : [];
 });
 
-const postDetails = ref({});
-
-const showDetailPost = (post, idx) => {
+const showDetailPost = (post) => {
   selectedPost.value = post;
-  postDetails = {
-    post,
-    imageUrl: imageRefUrls.value[idx]
-  };
-  // console.log("전달할 URL: ", imageRefUrls.value[idx])
-  // selectedPostPhoto.value = imageRefUrls.value[idx];
   showDetail.value = true;
-  selectedPostPhoto.value = postDetails.imageUrl;
 }
 
 const handlePageChange = () => {
@@ -98,6 +86,9 @@ onMounted(() => {
   );
 })
 
+const closeModal = () =>{
+  showDetail.value = false;
+}
 
 
 </script>
@@ -122,7 +113,4 @@ onMounted(() => {
   text-align: center;
 }
 
-.card-img{
-
-}
 </style>

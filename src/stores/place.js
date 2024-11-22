@@ -6,7 +6,6 @@ const REST_API_URL = `http://localhost:8080/api/loc`;
 
 export const usePlaceStore = defineStore('place', () => {
   const searchResults = ref([]);
-
   const getSearchResults = async (keyword) => {
     try {
       // console.log("keyword: ", keyword);
@@ -20,5 +19,15 @@ export const usePlaceStore = defineStore('place', () => {
     }
   };
 
-  return { searchResults, getSearchResults };
+  const getPlaceName = async (placeId) => {
+    try{
+      const resp = await axios.get(REST_API_URL + "/name/" + placeId);
+      return resp.data;
+    }catch (error) {
+      console.log("장소 명 검색 실패 fetch 오류");
+      return "";
+    }
+  }
+
+  return { searchResults, getSearchResults, getPlaceName };
 });
