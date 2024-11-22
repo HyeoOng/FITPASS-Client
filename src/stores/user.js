@@ -117,5 +117,15 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck };
+  const updateUserInfo = async (user) => {
+    try {
+      const response = await axios.post(`${REST_API_URL}/update`, user);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  return { signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, updateUserInfo };
 });

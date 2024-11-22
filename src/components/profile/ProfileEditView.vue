@@ -47,7 +47,7 @@
         ></v-text-field>
 
         <v-text-field
-          v-model="formData.nickname"
+          v-model="formData.nn"
           label="닉네임"
           placeholder="닉네임을 입력해 주세요"
           variant="outlined"
@@ -92,9 +92,9 @@ onMounted(async () => {
     if (user) {
       formData.value = {
         name: user.name || '이름 없음',  // 기본값 처리
-        nickname: user.nn || '닉네임 없음',  // 기본값 처리
+        nn: user.nn || '닉네임 없음',  // 기본값 처리
         email: user.email || '이메일 없음',  // 기본값 처리
-        profile: user.profile ? user.profile : defaultProfileImg,  // 프로필 사진 처리
+        // profile: user.profile ? user.profile : defaultProfileImg,  // 프로필 사진 처리
       };
     } else {
       console.error("User data is missing or malformed.");
@@ -109,12 +109,23 @@ onMounted(async () => {
 const router = useRouter();
 
 function cancelUpdate() {
+  alert("프로필 화면으로 돌아갑니다.");
   router.push("/profile");
 }
 
-function submitForm() {
-  alert('프로필 저장:', formData.value);
-  router.push("/profile");
+const submitForm = async () => {
+  try {
+    const response = await userStore.updateUserInfo(formData.value);
+    if (response.msg == "success") {
+      alert("성공적으로 수정했습니다.");
+      router.push("/profile");
+    } else {
+      alert("수정 실패했습니다. 다시 시도해주세요.")
+    }
+
+  } catch (error) {
+    console.error("프로필 수정 중 오류 발생", error);
+  }
 }
 </script>
 
