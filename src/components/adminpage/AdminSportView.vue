@@ -80,9 +80,11 @@ const addSport = async () => {
         const newSport = { sportName: newSportName.value.trim() }; // sport 객체 생성
         try {
             const createdSport = await sportStore.createSport(newSport); // 새로운 운동 생성
-            sports.value.push(createdSport); // 반환된 데이터를 로컬 배열에 추가
+            // sports.value.push(createdSport); // 반환된 데이터를 로컬 배열에 추가
             alert("운동이 성공적으로 등록되었습니다.");
             newSportName.value = ""; // 입력 초기화
+            await sportStore.getSportsArr(); // 운동 목록 다시 로드
+            sports.value = sportStore.sports;
         } catch (error) {
             console.error("운동 등록 중 오류 발생: ", error);
             alert("운동 등록에 실패했습니다.");
