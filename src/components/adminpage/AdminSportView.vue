@@ -14,7 +14,7 @@
                         <td>{{ sport.sportName }}</td>
                         <td>
                             <button class="update-btn" @click="openUpdateModal(index)">수정</button>
-                            <button class="delete-btn" @click="deleteSport(index)">삭제</button>
+                            <button class="delete-btn" @click="deleteSport(sport.sportCode, index)">삭제</button>
                         </td>
                     </tr>
                 </tbody>
@@ -44,18 +44,27 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, toRaw } from "vue";
+import { useSportStore } from "@/stores/sport";
+
+const sportStore = useSportStore();
 
 // 운동 목록
-const sports = ref([
-    { sportCode: 1, sportName: "클라이밍" },
-    { sportCode: 2, sportName: "수영" },
-    { sportCode: 3, sportName: "등산" },
-    { sportCode: 4, sportName: "러닝" },
-    { sportCode: 5, sportName: "걷기" },
-    { sportCode: 6, sportName: "사이클링" },
-    { sportCode: 7, sportName: "골프" },
-]);
+const sports = ref([]);
+
+onMounted(async () => {
+    try {
+        const response = await sportStore.getAllSports();
+        if (Array.isArray(response)) {
+            sports.value = toRaw(response);
+        } else {
+            console.error("운동 목록을 가져오는 데 실패했습니다.");
+        }
+    } catch (error) {
+        console.error("운동 목록을 불러오는 중 오류 발생");
+        alert("운동 데이터를 가져 오는 데 실패했습니다.");
+    }
+})
 
 // 새 운동 이름
 const newSportName = ref("");
@@ -66,13 +75,20 @@ const updatedSportName = ref("");
 const sportToUpdateIndex = ref(null);
 
 // 운동 추가 함수
-const addSport = () => {
+const addSport = async () => {
     if (newSportName.value.trim()) {
-        sports.value.push({
-            sportCode: sports.value.length + 1,
-            sportName: newSportName.value.trim(),
-        });
-        newSportName.value = ""; // 입력 초기화
+        const newSport = { sportName: newSportName.value.trim() }; // sport 객체 생성
+        try {
+            const createdSport = await sportStore.createSport(newSport); // 새로운 운동 생성
+            sports.value.push(createdSport); // 반환된 데이터를 로컬 배열에 추가
+            alert("운동이 성공적으로 등록되었습니다.");
+            newSportName.value = ""; // 입력 초기화
+        } catch (error) {
+            console.error("운동 등록 중 오류 발생: ", error);
+            alert("운동 등록에 실패했습니다.");
+        }
+    } else {
+        alert("운동 이름을 입력하세요.");
     }
 };
 
@@ -85,12 +101,30 @@ const openUpdateModal = (index) => {
 };
 
 // 수정된 운동 이름 저장
-const saveUpdatedSport = () => {
+const saveUpdatedSport = async () => {
     if (updatedSportName.value.trim()) {
-        sports.value[sportToUpdateIndex.value].sportName = updatedSportName.value.trim();
-        closeModal(); // 모달 닫기
+        const sportCode = sports.value[sportToUpdateIndex.value].sportCode;
+        const updatedSport = {
+            sportCode,
+            sportName: updatedSportName.value.trim(),
+        };
+
+        try {
+            const response = await sportStore.updateSport(updatedSport);
+            if (response.msg === "success") {
+                alert("운동 이름이 성공적으로 수정되었습니다.");
+                sports.value[sportToUpdateIndex.value].sportName = updatedSportName.value.trim(); // 로컬 데이터 업데이트
+                closeModal(); // 모달 닫기
+            } else {
+                alert("운동 이름 수정에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("운동 이름 수정 중 오류 발생: ", error);
+            alert("운동 이름 수정에 실패했습니다.");
+        }
     }
 };
+
 
 // 모달 닫기
 const closeModal = () => {
@@ -99,9 +133,19 @@ const closeModal = () => {
 };
 
 // 운동 삭제 함수
-const deleteSport = (index) => {
+const deleteSport = async (sportCode, index) => {
     if (confirm("정말로 삭제하시겠습니까?")) {
-        sports.value.splice(index, 1);
+        try {
+            const response = await sportStore.deleteSport(sportCode);
+            if (response.msg == "success") {
+                alert("성공적으로 삭제했습니다.");
+                sports.value.splice(index, 1);
+            } else {
+                alert("운동을 삭제하지 못했습니다.");
+            }
+        } catch {
+            console.error("운동 삭제 중 오류 발생: ", error);
+        }
     }
 };
 </script>
