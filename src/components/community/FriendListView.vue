@@ -4,7 +4,9 @@
     <v-container class="friends-container profile">
       <v-row class="d-flex align-center">
         <v-col cols="3">
-          <v-avatar :image="imgSrc" size="50"></v-avatar>
+          <v-avatar size="50">
+            <v-img :src="myProfile ? myProfile : imgSrc" />
+          </v-avatar>
         </v-col>
         <v-col cols="9">
           <h3 class="font-weight-black">{{ nickname }}</h3>
@@ -19,7 +21,9 @@
       <v-container v-for="(friend, idx) in friendList" :key="friend.id" class="friend-container friend-profile">
         <v-row class="d-flex align-center">
           <v-col cols="3">
-            <v-avatar :image="imgSrc" size="40"></v-avatar>
+            <v-avatar size="40">
+              <v-img :src="friendProfile[idx] ? friendProfile[idx] : imgSrc" />
+            </v-avatar>
           </v-col>
           <v-col cols="5">
             <h3 class="font-weight-bold">{{ friend.nn }}</h3>
@@ -87,10 +91,12 @@
 import { ref, toRaw, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useFriendStore } from '@/stores/friend';
+import { usePhotoStore } from '@/stores/photo'
 import imgSrc from '@/assets/profile.png';
 
 const userStore = useUserStore();
 const friendStore = useFriendStore();
+const photoStore = usePhotoStore();
 
 const searchRes = ref(false); // 검색 버튼을 눌렀을 때, 검색 결과를 보여줄 변수
 const nickname = ref(sessionStorage.getItem("nickname"));
@@ -98,6 +104,9 @@ const searchNickName = ref("");
 const friendList = ref([]); // 친구 리스트 상태
 const requestList = ref([]); // 요청 받은 목록 
 const searchFriendList = ref([]); // 검색된 친구 리스트 상태
+
+const myProfile = ref(null);
+const friendProfile = ref([]);
 
 // 친구 목록 갱신 함수
 const updateFriendList = async () => {
@@ -191,8 +200,16 @@ const getFriendRequest = async () => {
 updateFriendList();
 
 // 처음 페이지 로드될 때 친구 요청 목록 불러오기 
-onMounted(() => {
+onMounted(async() => {
   getFriendRequest();
+  myProfile.value = await photoStore.loadProfileImage();
+
+  friendList.value.forEach(async (f, idx) => {
+    const resp = await photoStore.loadProfileImage(f.userId);
+    if(resp != null){
+      friendProfile.value[idx] = resp;
+    }
+  })
 });
 
 // 친구 요청 수락하는 함수 

@@ -51,6 +51,10 @@
       <v-col cols="5" class="pl-2 pr-10 content-div">
         <h2 class="font-weight-black">{{ post.title }}</h2>
         <div class="post-calender">
+          <v-icon icon="mdi-account"></v-icon>
+          <span class="ml-3">{{ nickname }}</span>
+        </div>
+        <div class="post-calender">
           <v-icon icon="mdi-calendar"></v-icon>
           <span class="ml-3">{{ formattedDate }}</span>
         </div>
@@ -62,7 +66,7 @@
         <!--댓글 영역-->
         <div class="comment-div">
           <div
-            v-for="c in comments"
+            v-for="(c, idx) in comments"
             :key="c.commentId"
             class="py-5 comment pl-8"
           >
@@ -70,9 +74,11 @@
               <div class="d-flex">
                 <v-avatar
                   size="30"
-                  color="surface-variant"
                   class="mr-5"
-                ></v-avatar>
+                >
+                <!-- color="surface-variant" -->
+                  <v-img :src="cmtUserProfile[idx] ? cmtUserProfile[idx] : defaultProfileImg" />
+                </v-avatar>
                 <p>{{ c.comment }}</p>
               </div>
               <v-menu>
@@ -144,6 +150,9 @@ import { useSportStore } from "@/stores/sport";
 import { usePlaceStore } from "@/stores/place";
 import { useCommentStore } from "@/stores/comment";
 import { useUserStore } from "@/stores/user";
+import { usePhotoStore } from "@/stores/photo";
+
+import defaultProfileImg from '@/assets/profile.png';
 
 const emit = defineEmits(["close"]);
 
@@ -153,6 +162,7 @@ const sportStore = useSportStore();
 const placeStore = usePlaceStore();
 const cmtStore = useCommentStore();
 const userStore = useUserStore();
+const photoStore = usePhotoStore();
 
 const props = defineProps({
   post: {
@@ -170,12 +180,16 @@ const comment = ref({
   comment: "",
 });
 
+const cmtUserProfile = ref([]);
+
 const sportName = computed(() => {
   const sport = sportStore.sports.find(
     (s) => s.sportCode === props.post.sportCode
   );
   return sport ? sport.sportName : "알 수 없음";
 });
+
+const nickname = ref(props.post.userId);
 
 const registCmt = async () => {
   const resp = await cmtStore.registComment(comment.value);
@@ -193,6 +207,9 @@ const registCmt = async () => {
 
 const loadComments = async (postId) => {
   comments.value = [...(await cmtStore.getComments(postId))];
+  comments.value.forEach(async(cmt, idx) => {
+    cmtUserProfile.value[idx] = await photoStore.loadProfileImage(cmt.userId)
+  });
 }
 
 // post 변경 감지
@@ -202,6 +219,9 @@ const watchPost = watch(
     console.log("Updated post:", newValue);
     photoUrl.value = await loadImageOne(newValue.photoUrl);
     placeName.value = await placeStore.getPlaceName(newValue.placeId);
+
+    const user = await userStore.getUserByUserId(newValue.userId);
+    nickname.value = user.nn;
 
     // 댓글 불러오기..
     loadComments(newValue.postId);

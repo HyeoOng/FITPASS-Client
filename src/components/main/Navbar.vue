@@ -58,6 +58,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { usePhotoStore } from '@/stores/photo'
 
 import imgSrc from '@/assets/profile.png';
 import AdminDialogCard from './AdminDialogCard.vue';
@@ -68,6 +69,7 @@ import defaultProfileImg from '@/assets/profile.png';
 
 const router = useRouter();
 const userStore = useUserStore();
+const photoStore = usePhotoStore();
 
 const profile = ref(null);
 const userNn = computed(() => userStore.userNn);
@@ -95,8 +97,11 @@ const goToProfile = () => {
   router.push('/profile');
 }
 
-onMounted(() => {
-  userNn.value = sessionStorage.getItem("nickname");
+onMounted(async () => {
+  if(userStore.isLogined){
+    userNn.value = sessionStorage.getItem("nickname");
+    profile.value = await photoStore.loadProfileImage();
+  }
   
 })
 </script>

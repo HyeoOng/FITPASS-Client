@@ -46,9 +46,12 @@ export const usePhotoStore = defineStore('photo', () => {
     }
   }
 
-  const loadProfileImage = async () => { 
-    try{   
-      const resp = await axios.get(REST_API_URL, {
+  const loadProfileImage = async (user_id) => { 
+    try{
+      let path = null;
+      if (user_id == null) path = `${REST_API_URL}/0`
+      else path = `${REST_API_URL}/${user_id}`
+      const resp = await axios.get(path, {
         responseType: 'blob'
       });
       if(resp.data){
