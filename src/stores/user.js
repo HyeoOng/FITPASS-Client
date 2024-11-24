@@ -1,9 +1,11 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import router from '@/router';
+import { useRoute } from 'vue-router';
 
 const REST_API_URL = `http://localhost:8080/api/users`;
+
+const router = useRoute();
 
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(sessionStorage.getItem('userId') !== null);
