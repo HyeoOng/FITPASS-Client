@@ -165,7 +165,7 @@ const placeName = ref("");
 const photoUrl = ref("");
 const comments = ref([]);
 const comment = ref({
-  userId: 0,
+  userId: sessionStorage.getItem("userId"),
   postId: props.post.postId,
   comment: "",
 });
@@ -184,7 +184,7 @@ const registCmt = async () => {
     // 댓글 목록 재로드
     loadComments(props.post.postId)
     comment.value.comment = "";
-    alert("성공");
+    // alert("성공");
   } else {
     alert(`댓글 등록에 실패하였습니다.
     잠시 후 다시 시도해주세요.`);

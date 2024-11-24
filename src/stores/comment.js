@@ -23,8 +23,12 @@ export const useCommentStore = defineStore('comment', () => {
   }
 
   const registComment = async (comment) => {
+    console.log(comment)
     try{
-      await axios.post(REST_API_URL, comment)
+      const resp = await axios.post(REST_API_URL, comment)
+      if(resp.data.msg === "fail with ai"){
+        alert("비난, 혐오, 욕설이 포함된 글은 작성할 수 없습니다.");
+      }
       return true;
     } catch(error){
       console.error("댓글 등록 오류: ", error)
