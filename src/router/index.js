@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,7 +17,6 @@ const router = createRouter({
           path: '/profile',
           name: 'profile',
           component: () => import('@/components/profile/ProfileView.vue'),
-          
         },
         {
           path: 'profile/edit',
@@ -28,6 +28,7 @@ const router = createRouter({
           name: 'admin',
           component: () => import('@/components/adminpage/AdminPageView.vue'),
           redirect: '/admin/list', // 기본 경로 설정
+          meta: { requiresAdmin: true }, // 관리자 권한 필요
           children: [
             { path: 'list', name: 'admin-list', component: () => import('@/components/adminpage/AdminListView.vue') },
             { path: 'sport', name: 'admin-sport', component: () => import('@/components/adminpage/AdminSportView.vue') },
@@ -42,6 +43,21 @@ const router = createRouter({
       component: () => import('@/components/Login.vue'),
     },
   ],
-})
+});
 
-export default router
+// 전역 네비게이션 가드 추가
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore(); // Pinia 스토어 사용
+  const isAdmin = userStore.isAdmin; // isAdmin 값 가져오기
+
+  if (to.meta.requiresAdmin && !isAdmin) {
+    // 관리자가 아니면 접근을 막고 알림을 띄운 후 이동을 취소
+    alert("관리자 권한이 필요합니다.");
+    next(false); // 화면 이동을 막음
+  } else {
+    // 관리자 권한이 충족되면 다음 라우트로 이동
+    next();
+  }
+});
+
+export default router;

@@ -9,6 +9,7 @@ const router = useRoute();
 
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(sessionStorage.getItem('userId') !== null);
+  const isAdmin = ref(false); // 관리자 여부를 추적하는 변수
   const userNn = ref(sessionStorage.getItem("nickname") || "USER");
   const userId = ref(sessionStorage.getItem("userId"));
   const searchFriendsList = ref([])
@@ -55,9 +56,17 @@ export const useUserStore = defineStore('user', () => {
       setNickname(response.data.nickname);
       userId.value = response.data.userId;
       sessionStorage.setItem("userId", userId.value)
+
+      // admin이 1 또는 2일 경우에만 관리자로 처리
+      console.log(response.data.admin);
+      if (response.data.admin === 1 || response.data.admin === 2) {
+        isAdmin.value = true;
+      } else {
+        isAdmin.value = false;
+      }
+
       return response.data;
 
-      router.push("/");
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       alert("로그인 실패: " + (error.response?.data?.message || "알 수 없는 오류"));
@@ -90,6 +99,7 @@ export const useUserStore = defineStore('user', () => {
       sessionStorage.removeItem("userId");
       clearNickname();
       isLogined.value = false;
+      isAdmin.value = false; // 로그아웃 시 관리자 상태 초기화
       router.push('/');
     } catch (error) {
       console.error("Logout error:", error.response?.data || error.message);
@@ -108,31 +118,29 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
-    // 커뮤니티 페이지에서 친구 검색 시 사용
+  // 커뮤니티 페이지에서 친구 검색 시 사용
   const getUsersByNn = async function (nn) {
     try {
       const response = await axios.get(`${REST_API_URL}/search?nn=${nn}`);
-      // console.log("친구 응답: ", response.data);
       searchFriendsList.value = response.data;
       console.log("sera124", searchFriendsList.value);
       return searchFriendsList;
     } catch (error) {
       throw error;
-    }    
+    }
   }
 
   const emailCheck = async (email) => {
-      try {
-        const response = await axios.post(`${REST_API_URL}/emailCheck`, {
-          email
-        });
-        return response.data;
-
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
+    try {
+      const response = await axios.post(`${REST_API_URL}/emailCheck`, {
+        email
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
+  }
 
   const nnCheck = async (nn) => {
     try {
@@ -146,5 +154,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { userId, signup, login, isLogined, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, getCurrentUser };
+  return { userId, signup, login, isLogined, isAdmin, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, getCurrentUser };
 });
