@@ -49,8 +49,9 @@ export const usePhotoStore = defineStore('photo', () => {
     }
   }
 
-  const loadProfileImage = (userId) => {
-    // if
+  const loadProfileImage = async () => {
+    
+    // await axios.get()
   }
 
   const handleErrorResp = (msg) => {

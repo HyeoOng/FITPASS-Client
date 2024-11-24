@@ -21,16 +21,9 @@ export const useUserStore = defineStore('user', () => {
     sessionStorage.removeItem('nickname');
   }
 
-  const signup = async function (user, profile) {
-    const formData = new FormData();
-    formData.add("user", new Blob([JSON.stringify(user)], {
-      type: "application/json"
-    }));
-    formData.append("profile", profile);
-
-
+  const signup = async function (input) {
     try {
-      const response = await axios.post(`${REST_API_URL}/signup`,formData, {
+      const response = await axios.post(`${REST_API_URL}/signup`,input, {
         headers: {
           "Content-Type" : "multipart/form-data",
         }
@@ -45,7 +38,7 @@ export const useUserStore = defineStore('user', () => {
       }
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);
-      alert("회원 가입 중 오류가 발생했습니다.");
+      alert("회원 가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 

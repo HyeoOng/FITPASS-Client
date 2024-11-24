@@ -4,6 +4,9 @@ import axios from 'axios'
 
 const REST_API_URL = `http://localhost:8080/api/post`;
 
+// axios 설정
+// axios.defaults.withCredentials = true;
+
 export const usePostStore = defineStore('post', () => {
 
   const myPosts = ref([]);
@@ -15,6 +18,7 @@ export const usePostStore = defineStore('post', () => {
       },
     }).then(() => true).catch(() => false);
   }
+  
 
   const getMyPosts = async (page, size) => {
     try{

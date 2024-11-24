@@ -23,7 +23,12 @@
         <p class="color-blue" align="center">{{ userNn }}</p>님
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-avatar :image="imgSrc" class="ml-3" v-bind="props"></v-avatar>
+            <v-avatar class="ml-3" v-bind="props">
+              <v-img
+              :src="profile ? profile : defaultProfileImg"
+              alt="프로필 사진"
+              />
+            </v-avatar>
           </template>
           <v-list>
             <v-list-item @click="goToProfile">
@@ -57,9 +62,14 @@ import { useUserStore } from '@/stores/user';
 import imgSrc from '@/assets/profile.png';
 import AdminDialogCard from './AdminDialogCard.vue';
 
+// 로컬 이미지 경로를 import로 불러오기
+import logo from '@/assets/logo.png';
+import defaultProfileImg from '@/assets/profile.png';
+
 const router = useRouter();
 const userStore = useUserStore();
 
+const profile = ref(null);
 const userNn = computed(() => userStore.userNn);
 const adminDialog = ref(false);
 
@@ -75,9 +85,6 @@ const closeDialog = () => {
   adminDialog.value = false;
 }
 
-// 로컬 이미지 경로를 import로 불러오기
-import logo from '@/assets/logo.png';
-
 // 로컬 이미지 경로를 ref로 저장
 const logoSrc = ref(logo);
 const goToMain = () => {
@@ -90,6 +97,7 @@ const goToProfile = () => {
 
 onMounted(() => {
   userNn.value = sessionStorage.getItem("nickname");
+  
 })
 </script>
 

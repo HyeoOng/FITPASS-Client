@@ -44,7 +44,7 @@
 
         <v-text-field
           label="이름"
-          v-model="signupUser.name"
+          v-model="user.name"
           :rules="[(v) => !!v || '이름을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
@@ -52,18 +52,18 @@
         <div class="check">
           <v-text-field
           label="이메일"
-          v-model="signupUser.email"
+          v-model="user.email"
           :rules="[
             (v) => !!v || '이메일을 입력해 주세요',
             (v) => /.+@.+\..+/.test(v) || '유효한 이메일을 입력해 주세요',
           ]"
           variant="outlined"></v-text-field>
-          <v-btn @click="checkEmailDuplication(signupUser.email)" color="primary"
+          <v-btn @click="checkEmailDuplication(user.email)" color="primary"
             >중복<br>확인</v-btn
           >
           <v-btn 
-          :disabled="!signupUser.email || isEmailSending" 
-          @click="sendVerificationCode(signupUser.email)"
+          :disabled="!user.email || isEmailSending" 
+          @click="sendVerificationCode(user.email)"
           color="primary"
           >
             인증 코드 <br> 전송 
@@ -73,7 +73,7 @@
         
         <div class="check">
             <v-text-field
-            v-model="signupUser.verificationCode"
+            v-model="user.verificationCode"
             label="인증 코드"
             :rules="[(v) => !!v || '인증 코드를 입력해 주세요']"
             variant="outlined"
@@ -81,8 +81,8 @@
           </v-text-field>
 
           <v-btn 
-            :disabled="!signupUser.verificationCode || isVerificationChecking" 
-            @click="verifyCode(signupUser.email, signupUser.verificationCode)"
+            :disabled="!user.verificationCode || isVerificationChecking" 
+            @click="verifyCode(user.email, user.verificationCode)"
             color="success"
           >
             인증 확인
@@ -93,7 +93,7 @@
         <v-text-field
           label="비밀번호"
           type="password"
-          v-model="signupUser.password"
+          v-model="user.password"
           :rules="[
             (v) => !!v || '비밀번호를 입력해 주세요',
             (v) => v.length >= 6 || '6자 이상이어야 합니다',
@@ -106,11 +106,11 @@
         <div class="check">
           <v-text-field
           label="닉네임"
-          v-model="signupUser.nn"
+          v-model="user.nn"
           :rules="[(v) => !!v || '닉네임을 입력해 주세요']"
           variant="outlined"
         ></v-text-field>
-        <v-btn @click="checkNicknameDuplication(signupUser.nn)" color="primary"
+        <v-btn @click="checkNicknameDuplication(user.nn)" color="primary"
           >중복<br>확인</v-btn
         >
         </div>
@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, toRaw } from "vue";
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useEmailStore } from "@/stores/email";
@@ -137,13 +137,13 @@ const emailStore = useEmailStore();
 const photoStore = usePhotoStore();
 
 const isFormValid = computed(() => {
-  return signupUser.value.name &&
-          signupUser.value.email &&
-          signupUser.value.password &&
-          signupUser.value.nn;
+  return user.value.name &&
+          user.value.email &&
+          user.value.password &&
+          user.value.nn;
 })
 
-const signupUser = ref({
+const user = ref({
   name: "",
   email: "",
   password: "",
@@ -151,7 +151,7 @@ const signupUser = ref({
   verificationCode: "",
 });
 
-const profile = ref(''); // 서버 전송
+const profile = ref(null); // 서버 전송
 
 const profilePreview = ref(""); // 프로필 사진 미리보기
 
@@ -190,7 +190,7 @@ const checkEmailDuplication = async (email) => {
 
     if (response.msg == "fail2") {
       alert("중복된 이메일입니다. 다른 이메일을 입력해주세요.");
-      signupUser.value.email = ''; // 중복된 이메일을 입력 칸에서 지우기
+      user.value.email = ''; // 중복된 이메일을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("이메일은 공백일 수 없습니다.")
     } 
@@ -210,7 +210,7 @@ const checkNicknameDuplication = async (nn) => {
 
     if (response.msg == "fail2") {
       alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
-      signupUser.value.nn = ''; // 중복된 닉네임을 입력 칸에서 지우기
+      user.value.nn = ''; // 중복된 닉네임을 입력 칸에서 지우기
     } else if (response.msg == "fail1") {
       alert("닉네임은 공백일 수 없습니다.")
     } 
@@ -223,10 +223,44 @@ const checkNicknameDuplication = async (nn) => {
 }
 
 function submitForm() {
-  alert("회원가입 제출", signupUser.value);
-  userStore.signup(signupUser.value, profile.value);
+  // alert("회원가입 제출: ", signupUser.value);
+
+  if(!validateObj(user) || !profile.value){
+    if(!profile.value){
+      alert("프로필 사진을 선택해주세요!");
+    }
+    return
+  }
+  // console.log(user.value)
+
+  const formData = new FormData();
+  formData.append("user", new Blob([JSON.stringify(toRaw(user.value))],{
+    type: "application/json"}));
+
+  formData.append("file", profile.value);
+
+  userStore.signup(formData);
 
 }
+
+const validateObj = (obj) => {
+  for (const [key, value] of Object.entries(obj.value)) {
+    // 필드 이름을 더 친숙하게 변환
+    const displayName = {
+      name: "이름",
+      email: "이메일",
+      password: "비밀번호",
+      nn: "닉네임",
+      verificationCode: "인증 번호",
+    }[key] || key;
+
+    if (value === null || value === "") {
+      alert(`${displayName}을(를) 입력해주세요.`);
+      return false; // 검증 실패
+    }
+  }
+  return true; // 검증 성공
+};
 
 const rules = {
   password: value => {
