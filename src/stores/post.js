@@ -16,7 +16,16 @@ export const usePostStore = defineStore('post', () => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }).then(() => true).catch(() => false);
+    }).then((response) => {
+      if (response.data.msg === "fail with ai") {
+        alert("비난, 혐오, 욕설이 포함된 글은 작성할 수 없습니다.");  // 알림 창 띄우기
+        return false;  // false 반환
+      }
+      return true;  // 성공 시 true 반환
+    })
+    .catch(() => {
+      return false;  // 에러 발생 시 false 반환
+    });
   }
   
 
