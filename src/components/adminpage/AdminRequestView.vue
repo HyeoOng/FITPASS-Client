@@ -12,7 +12,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(request, index) in requests" :key="request.requestId">
-                        <td>{{ request.requestId }}</td>
+                        <td>{{ request.reqId }}</td>
                         <td>{{ request.name }}</td>
                         <td>{{ request.title }}</td>
                         <td>
@@ -48,19 +48,33 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref, toRaw } from "vue";
+import { useAdminRequestStore } from "@/stores/request";
+
+const requestStore = useAdminRequestStore();
 
 // 요청 목록
-const requests = ref([
-    { requestId: 1, name: "유저1", title: "운동 종목 추가해주세요", content: "운동 종목에 추가되어야 할 새로운 항목이 있습니다." },
-    { requestId: 2, name: "유저2", title: "운동 종목 추가해주세요2", content: "운동 종목에 추가되어야 할 항목에 대한 설명입니다." },
-]);
+const requests = ref([]);
 
 // 모달 상태
 const isModalOpen = ref(false); // 상세 보기 모달
 const isDeleteModalOpen = ref(false); // 삭제 확인 모달
 const selectedRequest = ref({}); // 선택된 요청 데이터
 const deleteIndex = ref(null); // 삭제할 요청의 인덱스
+
+onMounted(async () => {
+    try {
+        const response = await requestStore.getAllRequests();
+        if (Array.isArray(response)) {
+            requests.value = toRaw(response);
+        } else {
+            console.error("요청 목록을 가져오는 데 실패했습니다.");
+        } 
+    } catch (error) {
+        console.error("요청 데이터를 불러오는 중 오류 발생");
+        alert("요청 데이터를 가져오는 데 실패했습니다.");
+    }
+});
 
 // 요청 클릭 시 상세 보기 모달 열기
 const openModal = (request) => {
@@ -85,13 +99,29 @@ const closeDeleteModal = () => {
 };
 
 // 요청 삭제 함수
-const deleteRequest = () => {
+const deleteRequest = async () => {
     if (deleteIndex.value !== null) {
-        requests.value.splice(deleteIndex.value, 1); // 해당 요청 삭제
-        closeDeleteModal(); // 삭제 후 모달 닫기
+        const requestToDelete = requests.value[deleteIndex.value];
+        try {
+            // Pinia 함수 호출
+            const result = await requestStore.removeAdminRequest(requestToDelete.reqId);
+
+            if (result.msg == "success") {
+                // 삭제 성공 시 리스트에서 제거
+                requests.value.splice(deleteIndex.value, 1);
+                alert("요청을 성공적으로 삭제했습니다.");
+                closeDeleteModal(); // 삭제 후 모달 닫기
+            } else {
+                alert("요청 삭제에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("요청 삭제 중 오류 발생:", error);
+            alert("요청 삭제 중 오류가 발생했습니다.");
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .request-list {
