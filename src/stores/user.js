@@ -53,6 +53,7 @@ export const useUserStore = defineStore('user', () => {
       setNickname(response.data.nickname);
       userId.value = response.data.userId;
       sessionStorage.setItem("userId", userId.value)
+      return response.data;
 
       router.push("/");
     } catch (error) {

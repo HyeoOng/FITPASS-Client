@@ -66,9 +66,15 @@ const goToSignUp = () =>  {
   router.push('signup')
 }
 
-const goToLogin = () => {
-  userStore.login(user.value);
-  router.push('/')
+const goToLogin = async () => {
+  const response = await userStore.login(user.value);
+  if (response.msg == "success") {
+    router.push('/')
+  } else if (response.remainingAttempts) {
+    alert("남은 로그인 횟수: " , response.remainingAttempts);
+  } else if (response.msg) {
+    alert(response.msg);
+  }
 }
 </script>
 
