@@ -13,7 +13,7 @@
                 <tbody>
                     <tr v-for="(request, index) in requests" :key="request.requestId">
                         <td>{{ request.reqId }}</td>
-                        <td>{{ request.name }}</td>
+                        <td>{{ request.nn }}</td>
                         <td>{{ request.title }}</td>
                         <td>
                             <button class="deleteBtn" @click="confirmDelete(index)">삭제</button>
@@ -29,7 +29,7 @@
     <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
             <h4>요청 상세</h4>
-            <p><strong>요청자:</strong> {{ selectedRequest.name }}</p>
+            <p><strong>요청자:</strong> {{ selectedRequest.nn }}</p>
             <p><strong>제목:</strong> {{ selectedRequest.title }}</p>
             <p><strong>내용:</strong> {{ selectedRequest.content }}</p>
             <button class="close-btn" @click="closeModal">닫기</button>
