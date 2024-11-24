@@ -11,14 +11,14 @@
         <!-- 프로필 사진 미리보기 -->
         <div class="profile-img-container">
           <img
-            :src="formData.profile ? formData.profile : defaultProfileImg"
+            :src="userData.profile ? userData.profile : defaultProfileImg"
             alt="프로필 사진 미리보기"
             class="profileImg"
           />
         </div>
 
         <v-file-input
-          v-model="formData.profile"
+          v-model="userData.profile"
           :show-size="1000"
           label="프로필 사진 변경"
           placeholder="프로필 사진을 변경해 보세요!"
@@ -40,21 +40,21 @@
         </v-file-input>
 
         <v-text-field
-          v-model="formData.name"
+          v-model="userData.name"
           label="이름"
           placeholder="이름을 입력해 주세요"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="formData.nickname"
+          v-model="userData.nickname"
           label="닉네임"
           placeholder="닉네임을 입력해 주세요"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="formData.email"
+          v-model="userData.email"
           label="이메일"
           placeholder="이메일을 입력해 주세요"
           variant="outlined"
@@ -78,7 +78,7 @@ import defaultProfileImg from '@/assets/profile.png';
 
 const userStore = useUserStore();
 
-const formData = ref({
+const userData = ref({
   profile: null,
   name: '나혜원',
   nickname: '',
@@ -90,7 +90,7 @@ onMounted(async () => {
     const userId = sessionStorage.getItem("userId");
     const user = await userStore.getUserByUserId(parseInt(userId));
     if (user) {
-      formData.value = {
+      userData.value = {
         name: user.name || '이름 없음',  // 기본값 처리
         nickname: user.nn || '닉네임 없음',  // 기본값 처리
         email: user.email || '이메일 없음',  // 기본값 처리
@@ -113,7 +113,7 @@ function cancelUpdate() {
 }
 
 function submitForm() {
-  alert('프로필 저장:', formData.value);
+  alert('프로필 저장:', userData.value);
   router.push("/profile");
 }
 </script>

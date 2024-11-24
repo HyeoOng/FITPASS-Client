@@ -9,9 +9,6 @@ export const usePhotoStore = defineStore('photo', () => {
   const user = useUserStore();
 
   const photoCache = ref(new Map());
-  const profileCache = ref(new Map());
-
-  const profileUrl = ref('');
 
   const getPhoto = async (photoUrl) => {
     // 이미 캐싱된 데이터가 존재하면 반환
@@ -49,9 +46,20 @@ export const usePhotoStore = defineStore('photo', () => {
     }
   }
 
-  const loadProfileImage = async () => {
-    
-    // await axios.get()
+  const loadProfileImage = async () => { 
+    try{   
+      const resp = await axios.get(REST_API_URL, {
+        responseType: 'blob'
+      });
+      if(resp.data){
+        const blobUrl = URL.createObjectURL(resp.data);
+        return blobUrl;
+      } else {
+        return null;
+      }
+    } catch (error){
+      console.error("profile 로드 에러 : ", error);
+    }
   }
 
   const handleErrorResp = (msg) => {
@@ -71,5 +79,5 @@ export const usePhotoStore = defineStore('photo', () => {
     }
   }
 
-  return { photoCache, user, getPhoto, handleErrorResp }
+  return { photoCache, user, getPhoto, handleErrorResp, loadProfileImage }
 })

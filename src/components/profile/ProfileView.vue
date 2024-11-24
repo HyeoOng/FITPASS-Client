@@ -8,11 +8,12 @@
     <!-- 프로필 정보 표시 -->
     <div class="profile-info">
       <div class="profile-img-container">
-        <img
-          :src="profileData.profile ? profileData.profile : defaultProfileImg"
-          alt="프로필 사진"
-          class="profileImg"
-        />
+        <v-avatar class="profileImg" size="300">
+            <v-img
+              :src="profileImage ? profileImage : defaultProfileImg"
+              alt="프로필 사진"
+            />
+          </v-avatar>
       </div>
 
       <div class="profile-details">
@@ -31,8 +32,10 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import defaultProfileImg from '@/assets/profile.png';
 import { useUserStore } from '@/stores/user';
+import { usePhotoStore } from '@/stores/photo';
 
 const userStore = useUserStore();
+const photoStore = usePhotoStore();
 
 const profileData = ref({
   name: '',
@@ -40,6 +43,8 @@ const profileData = ref({
   email: '',
   profile: '',
 });
+
+const profileImage = ref(null);
 
 onMounted(async () => {
   try {
@@ -52,6 +57,8 @@ onMounted(async () => {
         email: user.email || '이메일 없음',  // 기본값 처리
         profile: user.profile ? user.profile : defaultProfileImg,  // 프로필 사진 처리
       };
+
+      profileImage.value = await photoStore.loadProfileImage();
     } else {
       console.error("User data is missing or malformed.");
       alert("사용자 데이터를 가져오는 데 실패했습니다.");

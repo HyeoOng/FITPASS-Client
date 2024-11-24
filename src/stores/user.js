@@ -90,7 +90,7 @@ export const useUserStore = defineStore('user', () => {
       sessionStorage.removeItem("userId");
       clearNickname();
       isLogined.value = false;
-      router.push("/");
+      router.push('/');
     } catch (error) {
       console.error("Logout error:", error.response?.data || error.message);
       alert("로그아웃 중 오류가 발생했습니다.");
