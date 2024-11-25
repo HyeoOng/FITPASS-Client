@@ -118,7 +118,6 @@ const photoUrl = ref(null); // 사진 미리보기 용 변수
 const post = ref({
   title: null,
   content: null,
-  userId: sessionStorage.getItem("userId"),
   sportCode: null,
   exerciseDuration: 30,
   isPublic: 0
@@ -138,26 +137,45 @@ const setPlace = (selectPlace) => {
 const onFileChange = (event) => {
   const files = event.target?.files || [];
   if (files.length === 0) {
-    alert('사진 파일을 선택해주세요.')
+    alert('사진 파일을 선택해주세요.');
     console.error("파일이 선택되지 않았습니다.");
     return;
   }
   const selectedFile = files[0]; // 첫 번째 파일 가져오기
+
+  // 파일 크기 제한 (5MB 이하)
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (selectedFile.size > maxSize) {
+    alert('파일 크기는 5MB를 초과할 수 없습니다.');
+    console.error("파일 크기 초과:", selectedFile.size);
+    file.value = null;
+    photoUrl.value = null;
+    return;
+  }
+
+  // 파일 이름에서 특수문자 제거
+  const sanitizedFileName = selectedFile.name.replace(/[^\w\s.-_]/gi, '_'); // 특수문자 치환
+
+  // 새로운 File 객체 생성 (기존 파일의 이름을 변경)
+  const sanitizedFile = new File([selectedFile], sanitizedFileName, { type: selectedFile.type });
+
   // 기존 미리보기 URL 해제
   if (photoUrl.value) {
     URL.revokeObjectURL(photoUrl.value);
   }
+
   // 파일이 이미지인 경우에만 처리
   if (selectedFile && selectedFile.type.startsWith('image/')) {
-    file.value = selectedFile;  // 사진 파일 저장
-    photoUrl.value = URL.createObjectURL(selectedFile);  // 미리보기 URL 생성
+    file.value = selectedFile; // 사진 파일 저장
+    photoUrl.value = URL.createObjectURL(selectedFile); // 미리보기 URL 생성
   } else {
     alert('이미지 파일만 업로드 가능합니다.');
-    console.error("유효하지 않은 파일:", file);
+    console.error("유효하지 않은 파일:", selectedFile);
     file.value = null;
     photoUrl.value = null;
   }
-}
+};
+
 
 // 글 등록하기 버튼
 const submitForm = () => {

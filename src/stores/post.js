@@ -4,56 +4,76 @@ import axios from 'axios'
 
 const REST_API_URL = `http://localhost:8080/api/post`;
 
-// axios 설정
-// axios.defaults.withCredentials = true;
-
 export const usePostStore = defineStore('post', () => {
 
   const myPosts = ref([]);
   const myAllPosts = ref([]);
   
   const registPost = async (input) => {
-    await axios.post(REST_API_URL, input, {
+    const resp = await axios.post(REST_API_URL, input, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }).then((response) => {
-      if (response.data.msg === "fail with ai") {
-        alert("비난, 혐오, 욕설이 포함된 글은 작성할 수 없습니다.");  // 알림 창 띄우기
-        return false;  // false 반환
-      }
-      return true;  // 성공 시 true 반환
     })
-    .catch(() => {
-      return false;  // 에러 발생 시 false 반환
-    });
+    try{
+      if(resp.data != null){
+        if(resp.data.flag){
+          return true;
+        }else{
+          // 에러 핸들링
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error("예상치 못한 에러(in post.js: ", error);
+      return false;
+    }
   }
   
 
   const getMyPosts = async (page, size) => {
     try{
-      const resp = await axios.get(REST_API_URL+ "/user", {
+      const resp = await axios.get(`${REST_API_URL}/user`, {
         params: {
           page: page-1,
           size,
         }
       })
-      console.log("pagenation: ",resp.data);
-      myPosts.value = resp.data
-      return myPosts;
+
+      if(resp.data != null){
+        if(resp.data.flag){
+          myPosts.value = resp.data.posts;
+          return myPosts;
+        }else{
+          // 에러 핸들링
+        }
+      }
+      return null;
+      // console.log("pagenation: ",resp.data);
+      // myPosts.value = resp.data
+      // return myPosts;
     } catch(error){
-      console.error("posts 불러오는 오류 (in post.js): ", error);
+      console.error("예상치 못한 에러(in post.js): ", error);
       return null;
     }
   }
 
   const getMyAllPosts = async () => {
     try{
-      const resp = await axios.get(`${REST_API_URL}/user-all`)
-      myAllPosts.value = resp.data;
-      return myAllPosts;
+      const resp = await axios.get(`${REST_API_URL}/user-all`);
+      if(resp.data != null){
+        if(resp.data.flag){
+          myAllPosts.value = resp.data.posts;
+          return myAllPosts;
+        }else{
+          // 에러 핸들링
+        }
+      }
+      return null;
+      // myAllPosts.value = resp.data;
+      // return myAllPosts;
     }catch(error){
-      console.error("내 모든 글 불러오는 중 오류: ", error);
+      console.error("예상치 못한 에러(in post.js): ", error);
       return null;
     }
   }
@@ -66,27 +86,49 @@ export const usePostStore = defineStore('post', () => {
           size
         }
       });
-      myPosts.value = resp.data;
-      return myPosts;
+
+      if(resp.data != null){
+        if(resp.data.flag){
+          myPosts.value = resp.data.posts;
+          return myPosts;
+        }else{
+          // 에러 핸들링
+        }
+      }
+      return null;
+      // myPosts.value = resp.data;
+      // return myPosts;
 
     }catch(error){
-      console.error("전체 게시글 로드 중 오류(fetch error): ", error);
+      console.error("예상치 못한 에러(in post.js): ", error);
+      return null;
     }
   }
 
   const getFriendsPosts = async (page, size) => {
     try{
-      const resp = await axios.get(REST_API_URL + "/friend", {
+      const resp = await axios.get(`${REST_API_URL}/friend`, {
         params: {
           page: page-1,
           size
         }
       });
-      myPosts.value = resp.data;
-      return myPosts;
+
+      if(resp.data != null){
+        if(resp.data.flag){
+          myPosts.value = resp.data.posts;
+          return myPosts;
+        }else{
+          // 에러 핸들링
+        }
+      }
+      return null;
+      // myPosts.value = resp.data;
+      // return myPosts;
 
     }catch(error){
-      console.error("친구 게시글 로드 중 오류(fetch error): ", error);
+      console.error("예상치 못한 에러(in post.js): ", error);
+      return null;
     }
   }
 
