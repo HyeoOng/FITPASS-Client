@@ -6,6 +6,7 @@ const REST_API_URL = `http://localhost:8080/api/loc`;
 
 export const usePlaceStore = defineStore('place', () => {
   const searchResults = ref([]);
+  const cityList = ref([]);
   const getSearchResults = async (keyword) => {
     try {
       // console.log("keyword: ", keyword);
@@ -19,6 +20,18 @@ export const usePlaceStore = defineStore('place', () => {
     }
   };
 
+  const getCity = async (posts) => {
+    try{
+      const resp = await axios.post(`${REST_API_URL}/list`, posts);
+      cityList.value = resp.data;
+      return cityList;
+    } catch (error) {
+      console.error("posts를 통해 place 정보 불러오기 오류 : ", error);
+      return null;
+    }
+
+  }
+
   const getPlaceName = async (placeId) => {
     try{
       const resp = await axios.get(REST_API_URL + "/name/" + placeId);
@@ -29,5 +42,5 @@ export const usePlaceStore = defineStore('place', () => {
     }
   }
 
-  return { searchResults, getSearchResults, getPlaceName };
+  return { searchResults, getSearchResults, getPlaceName, getCity };
 });

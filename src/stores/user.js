@@ -10,6 +10,7 @@ export const useUserStore = defineStore('user', () => {
   const isAdmin = ref(false); // 관리자 여부를 추적하는 변수
   const userNn = ref(sessionStorage.getItem("nickname") || "USER");
   const userId = ref(sessionStorage.getItem("userId"));
+  const userRegDate = ref(null);
   const searchFriendsList = ref([])
 
   const setNickname = (nn) => {
@@ -53,6 +54,7 @@ export const useUserStore = defineStore('user', () => {
 
       setNickname(response.data.nickname);
       userId.value = response.data.userId;
+      userRegDate.value = new Date - new Date(response.data.regDate);
       sessionStorage.setItem("userId", userId.value)
 
       // admin이 1 또는 2일 경우에만 관리자로 처리
@@ -81,6 +83,7 @@ export const useUserStore = defineStore('user', () => {
           isLogined.value = true;
           setNickname(user.nn);
           userId.value = user.userId;
+          userRegDate.value = new Date - new Date(user.regDate);
         }else{
           sessionStorage.clear();
           router.push('/');
@@ -152,5 +155,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { userId, signup, login, isLogined, isAdmin, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, getCurrentUser };
+  return { userId, signup, login, isLogined, isAdmin, logout, getUserByUserId, userNn, setNickname, clearNickname, getUsersByNn, searchFriendsList, emailCheck, nnCheck, getCurrentUser, userRegDate };
 });

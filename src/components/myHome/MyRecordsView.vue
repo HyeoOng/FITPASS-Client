@@ -18,14 +18,90 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps, computed, watch } from 'vue';
+import { useUserStore } from '@/stores/user';
+
+const props = defineProps({
+  posts: {
+    type: Array,
+    default: () => ([]), // 빈 객체
+  },
+  places: {
+    type: Array,
+    default: () => ([]), // 빈 객체
+  },
+});
+
+const userStore = useUserStore();
 
 const features = ref([
   { icon: 'mdi-map', title: '방문 지역', description: '4' },
-  { icon: 'mdi-clock', title: '운동한 총 시간', description: '23시간' },
+  { icon: 'mdi-clock', title: '운동한 시간', description: '23시간' },
   { icon: 'mdi-calendar', title: '가입 일수', description: '53일' },
-  { icon: 'mdi-robot', title: '모은 뱃지', description: '6개' }
+  { icon: 'mdi-robot', title: '최다 방문 지역', description: '6개' }
 ]);
+
+
+
+
+
+const watchPosts = watch(
+  () => props.posts, // post를 감시
+  async (newValue) => {
+
+    console.log("새로 감지 in records: ", newValue)
+
+    if((Array.isArray(newValue.value) && newValue.value !== undefined && newValue !== null)){
+      features.value[0].description = computed(() => {
+        return newValue.value.length;
+      })
+
+      // posts 배열의 exerciseDuration 합산 계산
+      const totalExerciseDuration = computed(() => {
+        return newValue.value.reduce((sum, post) => sum + (post.exerciseDuration || 0), 0) + ' 분';
+      });
+      // 2. 총 운동 시간 계산하기 
+      features.value[1].description = totalExerciseDuration.value;
+      
+      // 3. 가입 일수 계산하기
+      features.value[2].description = Math.ceil(userStore.userRegDate / (1000 * 60 * 60 * 24)+1) + '일'
+    }
+
+    
+  },
+  { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
+);
+
+const watchPlaces = watch(
+  () => props.places, // post를 감시
+  async (newValue) => {
+
+    if(newValue !== null && (Array.isArray(newValue.value) && newValue.value !== undefined && newValue !== null)){
+      // 4. 가장 많이 방문한 지역 찾기
+      const locationCount = {};
+
+      // places에서 주소를 기준으로 지역 추출 및 카운트
+      newValue.value.forEach(place => {
+        const placeAddress = place.placeAddress;
+        if (placeAddress) {
+          const region = placeAddress.split(' ')[0]; // 공백 기준 첫 번째 값 (서울, 대전 등)
+          if (region) {
+            locationCount[region] = (locationCount[region] || 0) + 1;
+          }
+        }
+      });
+
+      // 가장 많이 방문한 지역 찾기
+      const mostVisitedRegion = Object.keys(locationCount).reduce((a, b) => locationCount[a] > locationCount[b] ? a : b);
+      // console.log("가장 많이 방문한 지역: ", mostVisitedRegion)
+
+      // 5. 결과를 features의 마지막 description에 설정
+      features.value[3].description = mostVisitedRegion || '지역 없음';
+    }
+  },
+  { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
+);
+
 
 </script>
 

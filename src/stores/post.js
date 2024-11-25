@@ -10,6 +10,7 @@ const REST_API_URL = `http://localhost:8080/api/post`;
 export const usePostStore = defineStore('post', () => {
 
   const myPosts = ref([]);
+  const myAllPosts = ref([]);
   
   const registPost = async (input) => {
     await axios.post(REST_API_URL, input, {
@@ -46,6 +47,17 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
+  const getMyAllPosts = async () => {
+    try{
+      const resp = await axios.get(`${REST_API_URL}/user-all`)
+      myAllPosts.value = resp.data;
+      return myAllPosts;
+    }catch(error){
+      console.error("내 모든 글 불러오는 중 오류: ", error);
+      return null;
+    }
+  }
+
   const getAllPosts = async (page, size) => {
     try{
       const resp = await axios.get(REST_API_URL, {
@@ -78,5 +90,5 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  return { registPost, getMyPosts, getAllPosts, getFriendsPosts }
+  return { registPost, getMyPosts, getAllPosts, getFriendsPosts, getMyAllPosts }
 })
