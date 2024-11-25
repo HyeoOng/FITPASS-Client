@@ -5,17 +5,20 @@ import axios from 'axios';
 const REST_API_URL = `http://localhost:8080/api/loc`;
 
 export const usePlaceStore = defineStore('place', () => {
-  const searchResults = ref([]);
   const cityList = ref([]);
   const getSearchResults = async (keyword) => {
     try {
-      // console.log("keyword: ", keyword);
-      const resp = await axios.post(REST_API_URL + `/search`, { keyword });
-      searchResults.value = resp.data; // Store에 저장
-      // console.log("store에서 출력: ", searchResults.value);
-      return resp.data; // 데이터를 반환
+      const resp = await axios.post(`${REST_API_URL}/search`, { keyword });
+      if(resp.data != null){
+        if(resp.data.flag){
+          return resp.data.places;
+        }else{
+          // error 핸들링
+        }
+      }
+      return null;
     } catch (error) {
-      console.error("검색 결과 fetch 오류:", error.response?.data || error.message);
+      console.error("예상치 못한 에러 (in place):", error);
       return null; // 오류 시 null 반환
     }
   };
@@ -23,24 +26,38 @@ export const usePlaceStore = defineStore('place', () => {
   const getCity = async (posts) => {
     try{
       const resp = await axios.post(`${REST_API_URL}/list`, posts);
-      cityList.value = resp.data;
-      return cityList;
-    } catch (error) {
-      console.error("posts를 통해 place 정보 불러오기 오류 : ", error);
+      if(resp.data != null){
+        if(resp.data.flag){
+          cityList.value = resp.data.places;
+          return cityList;
+        }else {
+          // error 핸들링
+        }
+      }
       return null;
+    } catch (error) {
+      console.error("예상치 못한 에러 (in place):", error);
+      return null; // 오류 시 null 반환
     }
 
   }
 
   const getPlaceName = async (placeId) => {
     try{
-      const resp = await axios.get(REST_API_URL + "/name/" + placeId);
-      return resp.data;
+      const resp = await axios.get(`${REST_API_URL}/name/${placeId}`);
+      if(resp.data != null){
+        if(resp.data.flag){
+          return resp.data.name;
+        }else{
+          // 에러 핸들링
+        }
+      }
+      return null;
     }catch (error) {
-      console.log("장소 명 검색 실패 fetch 오류");
+      console.error("예상치 못한 에러 (in place): ", error);
       return "";
     }
   }
 
-  return { searchResults, getSearchResults, getPlaceName, getCity };
+  return { getSearchResults, getPlaceName, getCity };
 });

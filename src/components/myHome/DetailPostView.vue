@@ -176,8 +176,6 @@ const props = defineProps({
   },
 });
 
-const showText = ref(false); // 마우스 호버 상태를 관리하는 변수
-
 const placeName = ref("");
 const photoUrl = ref("");
 const comments = ref([]);
@@ -217,6 +215,7 @@ const registCmt = async () => {
 const loadComments = async (postId) => {
   const resp = await cmtStore.getComments(postId);
   comments.value = [...resp.value];
+  console.log("댓글:", comments.value)
   comments.value.forEach(async (cmt, idx) => {
     cmtUserProfile.value[idx] = await photoStore.loadProfileImage(cmt.userId);
   });
@@ -235,14 +234,11 @@ const watchPost = watch(
 
     // 댓글 불러오기..
     await loadComments(newValue.postId);
-    // comments.value = toRaw(comments.value)
-    // console.log("댓글: ", comments.value);
-    // console.log("현재 로그인된 사용자 ID: ", userStore.userId)
 
     comments.value.forEach(async (cmt, idx) => {
-      cmtUserNn.value[idx] = await userStore.getUserByUserId(cmt.userId);
+      const resp = await userStore.getUserByUserId(cmt.userId); // 여기 해결하기!!
+      cmtUserNn.value[idx] = resp.value;
     });
-    console.log("댓글 단 사용자: ", cmtUserNn.value)
   },
   { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
 );
