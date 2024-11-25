@@ -9,29 +9,40 @@ export const useCommentStore = defineStore('comment', () => {
 
   const getComments = async (postId) => {
     try{
-    const resp = await axios.get(REST_API_URL, {
-      params:{
-        postId
+      const resp = await axios.get(REST_API_URL, {
+        params:{
+          postId
+        }
+      })
+      if(resp.data != null){
+        if(resp.data.flag){
+          comments.value = resp.data.comments;
+          return comments;
+        }else{
+          // 에러 핸들링
+        }
       }
-    })
-    console.log("resp: ",resp.data);
-    comments.value = resp.data
-    return resp.data
-  } catch(error){
-    console.error(postId, " 불러오는 중 error: ,", error)
-  }
+    } catch(error){
+      console.error("예상치 못한 에러 (in comment) : ", error)
+      return null;
+    }
   }
 
   const registComment = async (comment) => {
     console.log(comment)
     try{
-      const resp = await axios.post(REST_API_URL, comment)
-      if(resp.data.msg === "fail with ai"){
-        alert("비난, 혐오, 욕설이 포함된 글은 작성할 수 없습니다.");
+      const resp = await axios.post(REST_API_URL, comment);
+      if(resp.data != null){
+        if(resp.data.flag){
+          return true;
+        }else{
+          // 에러 핸들러
+          return false;
+        }
       }
-      return true;
+      return false;
     } catch(error){
-      console.error("댓글 등록 오류: ", error)
+      console.error("예상치 못한 에러 (in comment) : ", error)
       return false;
     }
   }

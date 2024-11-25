@@ -70,16 +70,21 @@
             :key="c.commentId"
             class="py-5 comment pl-8"
           >
-            <v-row class="comment-detail" justify="space-between">
+            <v-row class="comment-detail" justify="space-between" align="center">
               <div class="d-flex">
-                <v-avatar
-                  size="30"
-                  class="mr-5"
-                >
-                <!-- color="surface-variant" -->
-                  <v-img :src="cmtUserProfile[idx] ? cmtUserProfile[idx] : defaultProfileImg" />
-                </v-avatar>
-                <p>{{ c.comment }}</p>
+                  <v-col cols="5" justify="center" class="px-0">
+                    <v-row class="ma-0" justify="center">
+                      <v-avatar size="30">
+                        <v-img :src="cmtUserProfile[idx] ? cmtUserProfile[idx] : defaultProfileImg" />
+                      </v-avatar>
+                    </v-row>
+                    <v-row class="ma-0" justify="center">
+                      {{ cmtUserNn[idx].nn }}
+                    </v-row>
+                  </v-col>
+                  <v-col cols="12">
+                    <p>{{ c.comment }}</p>
+                  </v-col>
               </div>
               <v-menu>
                 <template v-slot:activator="{ props }">
@@ -152,7 +157,7 @@ import { useCommentStore } from "@/stores/comment";
 import { useUserStore } from "@/stores/user";
 import { usePhotoStore } from "@/stores/photo";
 
-import defaultProfileImg from '@/assets/profile.png';
+import defaultProfileImg from "@/assets/profile.png";
 
 const emit = defineEmits(["close"]);
 
@@ -171,6 +176,8 @@ const props = defineProps({
   },
 });
 
+const showText = ref(false); // 마우스 호버 상태를 관리하는 변수
+
 const placeName = ref("");
 const photoUrl = ref("");
 const comments = ref([]);
@@ -179,6 +186,8 @@ const comment = ref({
   postId: props.post.postId,
   comment: "",
 });
+
+const cmtUserNn = ref([]);
 
 const cmtUserProfile = ref([]);
 
@@ -196,7 +205,7 @@ const registCmt = async () => {
   console.log("댓글 등록 결과: ", resp);
   if (resp) {
     // 댓글 목록 재로드
-    loadComments(props.post.postId)
+    loadComments(props.post.postId);
     comment.value.comment = "";
     // alert("성공");
   } else {
@@ -206,11 +215,12 @@ const registCmt = async () => {
 };
 
 const loadComments = async (postId) => {
-  comments.value = [...(await cmtStore.getComments(postId))];
-  comments.value.forEach(async(cmt, idx) => {
-    cmtUserProfile.value[idx] = await photoStore.loadProfileImage(cmt.userId)
+  const resp = await cmtStore.getComments(postId);
+  comments.value = [...resp.value];
+  comments.value.forEach(async (cmt, idx) => {
+    cmtUserProfile.value[idx] = await photoStore.loadProfileImage(cmt.userId);
   });
-}
+};
 
 // post 변경 감지
 const watchPost = watch(
@@ -224,11 +234,15 @@ const watchPost = watch(
     nickname.value = user.nn;
 
     // 댓글 불러오기..
-    loadComments(newValue.postId);
+    await loadComments(newValue.postId);
     // comments.value = toRaw(comments.value)
-    console.log("댓글: ", comments.value);
-    console.log("현재 로그인된 사용자 ID: ", userStore.userId)
-    
+    // console.log("댓글: ", comments.value);
+    // console.log("현재 로그인된 사용자 ID: ", userStore.userId)
+
+    comments.value.forEach(async (cmt, idx) => {
+      cmtUserNn.value[idx] = await userStore.getUserByUserId(cmt.userId);
+    });
+    console.log("댓글 단 사용자: ", cmtUserNn.value)
   },
   { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
 );
