@@ -79,7 +79,7 @@
                       </v-avatar>
                     </v-row>
                     <v-row class="ma-0" justify="center">
-                      {{ cmtUserNn[idx].nn }}
+                      {{ cmtUserNn[idx] }}
                     </v-row>
                   </v-col>
                   <v-col cols="12">
@@ -236,8 +236,8 @@ const watchPost = watch(
     await loadComments(newValue.postId);
 
     comments.value.forEach(async (cmt, idx) => {
-      const resp = await userStore.getUserByUserId(cmt.userId); // 여기 해결하기!!
-      cmtUserNn.value[idx] = resp.value;
+      const user = await userStore.getUserByUserId(cmt.userId); // 여기 해결하기!!
+      cmtUserNn.value[idx] = user.nn;
     });
   },
   { immediate: true } // 컴포넌트 초기화 시에도 즉시 실행
