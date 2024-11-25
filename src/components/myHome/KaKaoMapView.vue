@@ -32,7 +32,7 @@
           width="100%"
         >
           <KakaoMapMarker
-            v-for="(p, idx) in myPlaces"
+            v-for="(p, idx) in allMyPlaces"
             :key="p.placeId"
             :lat="p.latitude"
             :lng="p.longitude"
@@ -67,6 +67,8 @@ const myPlaces = ref([
   { no: 5, name: "멀티캠퍼스 역삼" },
 ]);
 
+const allMyPlaces = ref([]);
+
 const watchPlaces = watch(
   () => props.places, // post를 감시
   async (newValue) => {
@@ -75,6 +77,8 @@ const watchPlaces = watch(
       newValue.value !== undefined &&
       newValue !== null
     ) {
+
+      allMyPlaces.value = newValue.value;
       // 순서를 먼저 뒤집고, 그 후에 중복을 제거하기
       const reversedPlaces = newValue.value.reverse(); // 순서 뒤집기
 
