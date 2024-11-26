@@ -217,10 +217,7 @@ const checkNicknameDuplication = async (nn) => {
 function submitForm() {
   // alert("회원가입 제출: ", signupUser.value);
 
-  if(!validateObj(user) || !profile.value){
-    if(!profile.value){
-      alert("프로필 사진을 선택해주세요!");
-    }
+  if(!validateObj(user)){
     return
   }
   // console.log(user.value)
