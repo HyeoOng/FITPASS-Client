@@ -158,7 +158,7 @@ const profilePreview = ref(""); // 프로필 사진 미리보기
 const sendVerificationCode = async (email) => {
    try {
     const response = await emailStore.sendVerificationCode(email);
-    if (response.msg == "success") {
+    if (response.flag) {
       alert("인증 코드가 이메일로 발송되었습니다.");
     } else {
       alert("이메일 발송 실패: " + email);
@@ -172,7 +172,7 @@ const sendVerificationCode = async (email) => {
 const verifyCode = async (email, code) => {
   try {
     const response = await emailStore.verifyCode(email, code);
-    if (response.msg == "success") {
+    if (response.flag) {
       alert("코드 인증 성공");
     } else {
       alert("인증 코드 불일치");
