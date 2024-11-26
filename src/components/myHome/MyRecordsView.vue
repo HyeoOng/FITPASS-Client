@@ -6,9 +6,9 @@
         <v-col v-for="(feature, index) in features" :key="index" cols="12" md="3" class="text-center">
           <v-card class="feature-card rounded-lg">
             <v-card-title>
-              <v-icon color="primary" size="50">{{ feature.icon }}</v-icon>
+              <v-icon :color="feature.color" size="50">{{ feature.icon }}</v-icon>
             </v-card-title>
-            <h3 class="text-h6 font-weight-bold mt-1">{{ feature.title }}</h3>
+            <h3 class="text-h6 font-weight-bold">{{ feature.title }}</h3>
             <p v-html="feature.description" class="mb-2"></p>
           </v-card>
         </v-col>
@@ -35,10 +35,10 @@ const props = defineProps({
 const userStore = useUserStore();
 
 const features = ref([
-  { icon: 'mdi-map', title: '방문 지역', description: '4' },
-  { icon: 'mdi-clock', title: '운동한 시간', description: '23시간' },
-  { icon: 'mdi-calendar', title: '가입 일수', description: '53일' },
-  { icon: 'mdi-robot', title: '최다 방문 지역', description: '6개' }
+  { icon: 'mdi-map-check', title: '방문 지역', description: '0', color:'brown-lighten-1' },
+  { icon: 'mdi-timer', title: '운동한 시간', description: '0', color:'blue-grey' },
+  { icon: 'mdi-sprout', title: '가입 일수', description: '1일', color:'green' },
+  { icon: 'mdi-trophy', title: '최다 방문 지역', description: '0', color:'yellow' }
 ]);
 
 
@@ -64,7 +64,7 @@ const watchPosts = watch(
       features.value[1].description = totalExerciseDuration.value;
       
       // 3. 가입 일수 계산하기
-      features.value[2].description = Math.ceil(userStore.userRegDate / (1000 * 60 * 60 * 24)+1) + '일'
+      features.value[2].description = Math.ceil(userStore.userRegDate / (1000 * 60 * 60 * 24)) + '일'
     }
 
     
