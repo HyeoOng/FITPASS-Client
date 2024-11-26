@@ -22,12 +22,14 @@
         </div>
 
         <div class="form-container">
-            <h3>운동 등록</h3>
-            <form @submit.prevent="addSport">
-                <label for="sportName">운동 이름:</label>
-                <input type="text" id="sportName" v-model="newSportName" required/>
-                <button type="submit" class="submit-btn">등록</button>
-            </form>
+            <h3 class="form-title">운동 등록</h3>
+            <div class="regist-form">
+                <form @submit.prevent="addSport">
+                    <label for="sportName">운동 이름:</label>
+                    <input type="text" id="sportName" v-model="newSportName" required />
+                    <button type="submit" class="submit-btn">등록</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -159,22 +161,41 @@ const deleteSport = async (sportCode, index) => {
 <style scoped>
 .container {
     display: flex;
-    gap: 20px; /* Space between the table and form */
-    justify-content: flex-start; /* Align the items at the start */
-    padding: 0 20px; /* Horizontal padding */
+    align-items: flex-start; /* 자식 요소들을 수평 정렬하면서 위쪽으로 맞춤 */
+    gap: 20px; /* 테이블과 폼 사이 간격 */
+    padding: 20px;
 }
 
 .table-container {
-    flex: 1; /* This will take up the remaining space */
+    flex: 1; /* 남은 공간을 차지 */
     margin-left: 50px;
 }
 
 .form-container {
-    flex: 0 0 400px; /* Fixed width for the form */
+    flex: 0 0 400px; /* 고정된 너비 */
+    padding: 20px;
+    /* background-color: #f9f9f9; */
+    border-radius: 8px;
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 상단 정렬 */
+    align-items: flex-start; /* 내부 요소들을 왼쪽 정렬 */
+}
+
+.regist-form {
+    flex: 0 0 400px; /* 고정된 너비 */
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+}
+
+.form-title {
+    font-size: 1.5rem; /* 제목 글자 크기 */
+    margin-bottom: 10px; /* 제목과 폼 사이 간격 */
+    color: #333;
 }
 
 h3 {
@@ -305,4 +326,5 @@ h3 {
     padding: 10px;
     margin: 0 1%;
 }
+
 </style>
