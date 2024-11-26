@@ -48,7 +48,7 @@ const submitRequest = async () => {
 
   try {
     const response = await requestStore.addAdminRequest(request);
-    if (response.msg == "success") {
+    if (response.flag) {
       alert("요청이 성공적으로 등록되었습니다.");
       emit('closeDialog'); // 요청 후 Dialog 닫기
     } else {

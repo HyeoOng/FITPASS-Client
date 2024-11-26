@@ -106,7 +106,7 @@ const deleteRequest = async () => {
             // Pinia 함수 호출
             const result = await requestStore.removeAdminRequest(requestToDelete.reqId);
 
-            if (result.msg == "success") {
+            if (result.flag) {
                 // 삭제 성공 시 리스트에서 제거
                 requests.value.splice(deleteIndex.value, 1);
                 alert("요청을 성공적으로 삭제했습니다.");
