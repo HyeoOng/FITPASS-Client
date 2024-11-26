@@ -52,10 +52,12 @@ import logoView from '@/components/Logo.vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { errorHandler } from '@/util/errorHandler';
 
 const visible = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
+const { showError } = errorHandler();
 
 const user = ref({
   email: '',
@@ -71,7 +73,8 @@ const goToLogin = async () => {
   if (response.flag) {
     router.push('/')
   } else {
-    // error handling
+    if(response.msg) showError(resp.data.code, resp.data.msg);
+    else showError(response.code);
   }
 }
 </script>

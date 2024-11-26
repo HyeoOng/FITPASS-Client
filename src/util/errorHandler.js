@@ -2,8 +2,6 @@ import router from "@/router";
 
 import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore();
-
 export function errorHandler() {
 
   const error = {
@@ -25,6 +23,8 @@ export function errorHandler() {
 
 
   const showError = (code, ...message) => {
+    const userStore = useUserStore();
+
     const msg = error[code] || "알 수 없는 오류가 발생했습니다.";
     // UAL0003의 경우 동적으로 메시지 설정
     if (code === "UAL0003" && message[0]) {

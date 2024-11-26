@@ -2,8 +2,10 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import router from '@/router';
+import { errorHandler } from '@/util/errorHandler';
 
 const REST_API_URL = `http://localhost:8080/api/users`;
+const { showError } = errorHandler();
 
 export const useUserStore = defineStore('user', () => {
   const isLogined = ref(sessionStorage.getItem('userId') !== null);
@@ -36,7 +38,8 @@ export const useUserStore = defineStore('user', () => {
         alert("회원 가입에 성공했습니다. 로그인 창으로 이동해주세요");
         router.push("/");
       } else {
-        alert("회원 가입에 실패했습니다: " + msg);
+        if(response.data.msg) showError(response.data.code, response.data.msg);
+        else showError(response.data.code);
       }
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);

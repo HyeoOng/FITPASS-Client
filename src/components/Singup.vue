@@ -161,7 +161,7 @@ const sendVerificationCode = async (email) => {
     if (response.flag) {
       alert("인증 코드가 이메일로 발송되었습니다.");
     } else {
-      alert("이메일 발송 실패: " + email);
+      alert("이메일 발송 실패했습니다.");
     }
    } catch (error) {
     console.error(error);
@@ -191,7 +191,8 @@ const checkEmailDuplication = async (email) => {
     if (response.flag) {
       alert("등록 가능한 이메일입니다.");
     } else {
-      // error handling
+      if(response.msg) showError(resp.data.code, resp.data.msg);
+      else showError(response.code);
     }
   } catch (error) {
     console.error("이메일 중복 체크 중 오류 발생: ", error);
@@ -207,7 +208,8 @@ const checkNicknameDuplication = async (nn) => {
     if (response.flag) {
       alert("등록 가능한 닉네임입니다.");
     } else {
-      // error handling
+      if(response.msg) showError(resp.data.code, resp.data.msg);
+      else showError(response.code);
     }
   } catch (error) {
     console.error("닉네임 중복 체크 중 오류 발생: ", error);
