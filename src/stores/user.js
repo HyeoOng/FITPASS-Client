@@ -42,7 +42,7 @@ export const useUserStore = defineStore('user', () => {
         else showError(response.data.code);
       }
     } catch (error) {
-      console.error("Signup error:", error.response?.data || error.message);
+      console.error("Signup error:", error);
       alert("회원 가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
@@ -72,7 +72,7 @@ export const useUserStore = defineStore('user', () => {
 
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
-      alert("로그인 실패: " + (error.response?.data?.message || "알 수 없는 오류"));
+      alert("로그인 실패");
     }
   };
 
@@ -106,7 +106,7 @@ export const useUserStore = defineStore('user', () => {
       isAdmin.value = false; // 로그아웃 시 관리자 상태 초기화
       router.push('/');
     } catch (error) {
-      console.error("Logout error:", error.response?.data || error.message);
+      console.error("Logout error:", error);
       alert("로그아웃 중 오류가 발생했습니다.");
     }
   };
@@ -117,7 +117,7 @@ export const useUserStore = defineStore('user', () => {
       const response = await axios.get(`${REST_API_URL}/${userId}`);
       return response.data;
     } catch (error) {
-      console.error("getUserByUserId error:", error.response?.data || error.message);
+      console.error("getUserByUserId error:", error);
       throw error;
     }
   };
