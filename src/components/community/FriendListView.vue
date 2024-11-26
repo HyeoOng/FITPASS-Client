@@ -129,7 +129,7 @@ const removeFriend = async (friend) => {
   if (confirm("정말로 삭제하시겠습니까?") == true) {
     try {
     const response = await friendStore.deleteFriend(sessionStorage.getItem("userId"), friend.userId);
-    if (response.msg == "success") {
+    if (response.flag) {
       console.log("성공적으로 친구를 삭제했습니다.");
     } else {
       console.log("친구를 삭제하지 못했습니다.");
@@ -165,7 +165,7 @@ const searchFriends = async (nn) => {
 const addFriend = async (toUser) => {
   try {
     const response = await friendStore.sendFriendRequest(sessionStorage.getItem("userId"), toUser.userId); // 백엔드로부터 응답 받기
-    if (response.msg === "success") {
+    if (response.flag) {
       alert("친구 요청을 성공적으로 보냈습니다");
 
       // 친구 요청을 보낸 유저를 searchFriendList에서 제거
@@ -216,7 +216,7 @@ onMounted(async() => {
 const acceptFriendRequest = async (toUser) => {
   try {
     const response = await friendStore.sendFriendRequest(sessionStorage.getItem("userId"), toUser.userId);
-    if (response.msg === "success") {
+    if (response.flag) {
       alert("친구 요청을 수락했습니다.");
 
       // 친구 요청 목록에서 해당 유저 제거
@@ -238,7 +238,7 @@ const removeFriendRequest = async (requestUser, index) => {
   if (confirm("정말로 삭제하시겠습니까?")) {
     try {
       const response = await friendStore.deleteFriendRequest(requestUser.userId, sessionStorage.getItem("userId"));
-      if (response.msg == "success") {
+      if (response.flag) {
         alert("친구 요청을 삭제했습니다.");
         requestList.value.splice(index, 1);
       } else {
