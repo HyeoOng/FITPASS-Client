@@ -79,12 +79,16 @@ const addSport = async () => {
     if (newSportName.value.trim()) {
         const newSport = { sportName: newSportName.value.trim() }; // sport 객체 생성
         try {
-            const createdSport = await sportStore.createSport(newSport); // 새로운 운동 생성
-            // sports.value.push(createdSport); // 반환된 데이터를 로컬 배열에 추가
-            alert("운동이 성공적으로 등록되었습니다.");
-            newSportName.value = ""; // 입력 초기화
-            await sportStore.getSportsArr(); // 운동 목록 다시 로드
-            sports.value = sportStore.sports;
+            const response = await sportStore.createSport(newSport); // 새로운 운동 생성
+            if (response.flag) {
+                // sports.value.push(createdSport); // 반환된 데이터를 로컬 배열에 추가
+                alert("운동이 성공적으로 등록되었습니다.");
+                newSportName.value = ""; // 입력 초기화
+                await sportStore.getSportsArr(); // 운동 목록 다시 로드
+                sports.value = sportStore.sports;
+            } else {
+                alert("운동이 등록되지 못했습니다.");
+            }
         } catch (error) {
             console.error("운동 등록 중 오류 발생: ", error);
             alert("운동 등록에 실패했습니다.");
@@ -113,7 +117,7 @@ const saveUpdatedSport = async () => {
 
         try {
             const response = await sportStore.updateSport(updatedSport);
-            if (response.msg === "success") {
+            if (response.flag) {
                 alert("운동 이름이 성공적으로 수정되었습니다.");
                 sports.value[sportToUpdateIndex.value].sportName = updatedSportName.value.trim(); // 로컬 데이터 업데이트
                 closeModal(); // 모달 닫기
@@ -139,7 +143,7 @@ const deleteSport = async (sportCode, index) => {
     if (confirm("정말로 삭제하시겠습니까?")) {
         try {
             const response = await sportStore.deleteSport(sportCode);
-            if (response.msg == "success") {
+            if (response.flag) {
                 alert("성공적으로 삭제했습니다.");
                 sports.value.splice(index, 1);
             } else {

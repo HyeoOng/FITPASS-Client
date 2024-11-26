@@ -122,7 +122,7 @@ const addAdmin = async (userId, user) => {
     try {
         const response = await adminStore.addAdmin(userId); // 관리자로 추가
         console.log("admin: ", response.msg);
-        if (response.msg == "success") {
+        if (response.flag) {
             alert("성공적으로 추가했습니다.");
             searchQuery.value = ""; // 입력 필드 초기화
             searchRes.value = false;
@@ -141,7 +141,7 @@ const deleteAdmin = async (userId, index) => {
     if (confirm("정말로 삭제하시겠습니까?") == true) {
         try {
         const response = await adminStore.deleteAdmin(userId); // 관리자를 삭제
-        if (response.msg == "success") {
+        if (response.flag) {
             alert("성공적으로 삭제했습니다.");
             adminList.value.splice(index, 1);
         } else {
