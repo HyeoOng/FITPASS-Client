@@ -30,9 +30,9 @@ export const useUserStore = defineStore('user', () => {
           "Content-Type" : "multipart/form-data",
         }
       });
-      const msg = response.data.msg;
+      const flag = response.data.flag;
 
-      if (msg === "success") {
+      if (flag) {
         alert("회원 가입에 성공했습니다. 로그인 창으로 이동해주세요");
         router.push("/");
       } else {
