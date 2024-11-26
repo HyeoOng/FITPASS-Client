@@ -1,8 +1,11 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { errorHandler } from '@/util/errorHandler';
 
 const REST_API_URL = `http://localhost:8080/api/loc`;
+
+const { showError } = errorHandler();
 
 export const usePlaceStore = defineStore('place', () => {
   const cityList = ref([]);
@@ -13,7 +16,8 @@ export const usePlaceStore = defineStore('place', () => {
         if(resp.data.flag){
           return resp.data.places;
         }else{
-          // error 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
@@ -31,7 +35,8 @@ export const usePlaceStore = defineStore('place', () => {
           cityList.value = resp.data.places;
           return cityList;
         }else {
-          // error 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
@@ -49,7 +54,8 @@ export const usePlaceStore = defineStore('place', () => {
         if(resp.data.flag){
           return resp.data.name;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;

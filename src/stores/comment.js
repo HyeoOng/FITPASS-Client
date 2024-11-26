@@ -1,8 +1,11 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios';
+import { errorHandler } from '@/util/errorHandler';
 
 const REST_API_URL = "http://localhost:8080/api/cmt"
+
+const { showError } = errorHandler();
 
 export const useCommentStore = defineStore('comment', () => {
   const comments = ref([]);
@@ -19,7 +22,8 @@ export const useCommentStore = defineStore('comment', () => {
           comments.value = resp.data.comments;
           return comments;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
     } catch(error){
@@ -36,7 +40,8 @@ export const useCommentStore = defineStore('comment', () => {
         if(resp.data.flag){
           return true;
         }else{
-          // 에러 핸들러
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
           return false;
         }
       }

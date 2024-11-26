@@ -1,8 +1,10 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { errorHandler } from '@/util/errorHandler';
 
 const REST_API_URL = `http://localhost:8080/api/post`;
+const { showError } = errorHandler();
 
 export const usePostStore = defineStore('post', () => {
 
@@ -20,7 +22,8 @@ export const usePostStore = defineStore('post', () => {
         if(resp.data.flag){
           return true;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
           return false;
         }
       }
@@ -30,7 +33,6 @@ export const usePostStore = defineStore('post', () => {
     }
   }
   
-
   const getMyPosts = async (page, size) => {
     try{
       const resp = await axios.get(`${REST_API_URL}/user`, {
@@ -45,13 +47,11 @@ export const usePostStore = defineStore('post', () => {
           myPosts.value = resp.data.posts;
           return myPosts;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
-      // console.log("pagenation: ",resp.data);
-      // myPosts.value = resp.data
-      // return myPosts;
     } catch(error){
       console.error("예상치 못한 에러(in post.js): ", error);
       return null;
@@ -66,12 +66,11 @@ export const usePostStore = defineStore('post', () => {
           myAllPosts.value = resp.data.posts;
           return myAllPosts;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
-      // myAllPosts.value = resp.data;
-      // return myAllPosts;
     }catch(error){
       console.error("예상치 못한 에러(in post.js): ", error);
       return null;
@@ -92,13 +91,11 @@ export const usePostStore = defineStore('post', () => {
           myPosts.value = resp.data.posts;
           return myPosts;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
-      // myPosts.value = resp.data;
-      // return myPosts;
-
     }catch(error){
       console.error("예상치 못한 에러(in post.js): ", error);
       return null;
@@ -119,12 +116,11 @@ export const usePostStore = defineStore('post', () => {
           myPosts.value = resp.data.posts;
           return myPosts;
         }else{
-          // 에러 핸들링
+          if(resp.data.msg) showError(resp.data.code, resp.data.msg);
+          else showError(resp.data.code)
         }
       }
       return null;
-      // myPosts.value = resp.data;
-      // return myPosts;
 
     }catch(error){
       console.error("예상치 못한 에러(in post.js): ", error);

@@ -207,8 +207,7 @@ const registCmt = async () => {
     comment.value.comment = "";
     // alert("성공");
   } else {
-    alert(`댓글 등록에 실패하였습니다.
-    잠시 후 다시 시도해주세요.`);
+    comment.value.comment = "";
   }
 };
 
